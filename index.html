@@ -3,1714 +3,606 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SHEild AI — Predictive Cyber Safety System</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<title>HerSaathi — Your Digital Safety Companion</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,500&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #05050f;
-    --surface: #0d0d1f;
-    --surface2: #12122a;
-    --border: rgba(255,255,255,0.07);
-    --accent: #e83e8c;
-    --accent2: #7c3aed;
-    --accent3: #06d6a0;
-    --warn: #f59e0b;
-    --danger: #ef4444;
-    --text: #f0eeff;
-    --muted: #7a7a9d;
-    --glow: rgba(232,62,140,0.25);
-    --glow2: rgba(124,58,237,0.2);
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ——— NOISE TEXTURE ——— */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 0; opacity: 0.6;
-  }
-
-  /* ——— SIDEBAR ——— */
-  .sidebar {
-    position: fixed; left: 0; top: 0; bottom: 0;
-    width: 240px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    padding: 0;
-    z-index: 100;
-  }
-
-  .logo {
-    padding: 28px 24px 24px;
-    border-bottom: 1px solid var(--border);
-  }
-  .logo-mark {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 22px;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .logo-sub {
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-top: 2px;
-  }
-
-  .nav { padding: 20px 12px; flex: 1; }
-  .nav-group-label {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--muted);
-    padding: 0 12px;
-    margin: 16px 0 8px;
-  }
-  .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 13.5px;
-    font-weight: 500;
-    color: var(--muted);
-    transition: all 0.2s;
-    margin-bottom: 2px;
-    border: none; background: none; width: 100%; text-align: left;
-  }
-  .nav-item:hover { color: var(--text); background: var(--surface2); }
-  .nav-item.active {
-    color: var(--text);
-    background: linear-gradient(90deg, rgba(232,62,140,0.15), rgba(124,58,237,0.1));
-    border-left: 2px solid var(--accent);
-  }
-  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-
-  .sidebar-footer {
-    padding: 16px;
-    border-top: 1px solid var(--border);
-  }
-  .user-pill {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px;
-    background: var(--surface2);
-    border-radius: 10px;
-  }
-  .avatar {
-    width: 30px; height: 30px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700;
-  }
-  .user-info { flex: 1; }
-  .user-name { font-size: 12px; font-weight: 600; }
-  .user-status { font-size: 10px; color: var(--accent3); }
-
-  /* ——— MAIN ——— */
-  .main {
-    margin-left: 240px;
-    min-height: 100vh;
-    position: relative; z-index: 1;
-  }
-
-  /* ——— TOPBAR ——— */
-  .topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 20px 36px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(5,5,15,0.8);
-    backdrop-filter: blur(12px);
-    position: sticky; top: 0; z-index: 50;
-  }
-  .topbar-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 20px;
-  }
-  .topbar-right { display: flex; gap: 12px; align-items: center; }
-  .badge-live {
-    background: rgba(6,214,160,0.12);
-    border: 1px solid rgba(6,214,160,0.3);
-    color: var(--accent3);
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 20px;
-    display: flex; align-items: center; gap: 5px;
-  }
-  .dot-pulse {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--accent3);
-    animation: pulse-dot 1.5s infinite;
-  }
-  @keyframes pulse-dot {
-    0%,100%{opacity:1;transform:scale(1)}
-    50%{opacity:0.4;transform:scale(0.7)}
-  }
-
-  /* ——— PAGES ——— */
-  .page { display: none; padding: 32px 36px; animation: fadeIn 0.3s ease; }
-  .page.active { display: block; }
-  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-
-  /* ——— SECTION HEADER ——— */
-  .section-header { margin-bottom: 28px; }
-  .section-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 26px;
-    letter-spacing: -0.5px;
-  }
-  .section-desc { color: var(--muted); font-size: 14px; margin-top: 6px; }
-
-  /* ——— CARDS ——— */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px;
-    transition: border-color 0.2s;
-  }
-  .card:hover { border-color: rgba(232,62,140,0.2); }
-  .card-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 16px;
-    display: flex; align-items: center; gap: 8px;
-  }
-
-  /* ——— GRID ——— */
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
-  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
-
-  /* ——— STAT CARDS ——— */
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  .stat-card::after {
-    content: '';
-    position: absolute;
-    top: 0; right: 0;
-    width: 80px; height: 80px;
-    border-radius: 0 16px 0 80px;
-    opacity: 0.08;
-  }
-  .stat-card.pink::after { background: var(--accent); }
-  .stat-card.purple::after { background: var(--accent2); }
-  .stat-card.green::after { background: var(--accent3); }
-  .stat-card.warn::after { background: var(--warn); }
-
-  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); }
-  .stat-value {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 32px;
-    margin: 8px 0 4px;
-  }
-  .stat-value.pink { color: var(--accent); }
-  .stat-value.purple { color: var(--accent2); }
-  .stat-value.green { color: var(--accent3); }
-  .stat-value.warn { color: var(--warn); }
-  .stat-change { font-size: 12px; color: var(--muted); }
-  .stat-change span { color: var(--danger); }
-
-  /* ——— RISK SCORE RING ——— */
-  .risk-ring-wrap {
-    display: flex; flex-direction: column; align-items: center;
-    padding: 20px;
-  }
-  .risk-ring {
-    position: relative;
-    width: 160px; height: 160px;
-  }
-  .risk-ring svg { transform: rotate(-90deg); }
-  .risk-ring-label {
-    position: absolute;
-    inset: 0;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    transform: rotate(0deg);
-  }
-  .risk-score-num {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 36px;
-  }
-  .risk-score-text { font-size: 11px; color: var(--muted); }
-
-  /* ——— BUTTONS ——— */
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: white;
-    box-shadow: 0 4px 24px var(--glow);
-  }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 32px var(--glow); }
-  .btn-outline {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text);
-  }
-  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
-  .btn-danger {
-    background: rgba(239,68,68,0.12);
-    border: 1px solid rgba(239,68,68,0.3);
-    color: var(--danger);
-  }
-  .btn-danger:hover { background: rgba(239,68,68,0.2); }
-  .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 8px; }
-
-  /* ——— UPLOAD ZONE ——— */
-  .upload-zone {
-    border: 2px dashed rgba(232,62,140,0.3);
-    border-radius: 16px;
-    padding: 48px 32px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    background: rgba(232,62,140,0.03);
-    position: relative;
-  }
-  .upload-zone:hover, .upload-zone.dragover {
-    border-color: var(--accent);
-    background: rgba(232,62,140,0.07);
-  }
-  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-  .upload-icon { font-size: 40px; margin-bottom: 12px; }
-  .upload-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
-  .upload-sub { font-size: 13px; color: var(--muted); }
-
-  /* ——— PROGRESS BAR ——— */
-  .progress-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 99px; height: 6px; overflow: hidden; }
-  .progress-bar { height: 100%; border-radius: 99px; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); }
-  .pb-pink { background: linear-gradient(90deg, var(--accent), #ff6eb4); }
-  .pb-purple { background: linear-gradient(90deg, var(--accent2), #a855f7); }
-  .pb-green { background: linear-gradient(90deg, var(--accent3), #34d399); }
-  .pb-warn { background: linear-gradient(90deg, var(--warn), #fbbf24); }
-  .pb-red { background: linear-gradient(90deg, var(--danger), #f87171); }
-
-  /* ——— TAGS ——— */
-  .tag {
-    display: inline-flex; align-items: center; gap: 4px;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-  .tag-high { background: rgba(239,68,68,0.12); color: var(--danger); border: 1px solid rgba(239,68,68,0.25); }
-  .tag-medium { background: rgba(245,158,11,0.12); color: var(--warn); border: 1px solid rgba(245,158,11,0.25); }
-  .tag-low { background: rgba(6,214,160,0.12); color: var(--accent3); border: 1px solid rgba(6,214,160,0.25); }
-  .tag-fake { background: rgba(239,68,68,0.12); color: var(--danger); border: 1px solid rgba(239,68,68,0.25); }
-  .tag-real { background: rgba(6,214,160,0.12); color: var(--accent3); border: 1px solid rgba(6,214,160,0.25); }
-  .tag-suspicious { background: rgba(245,158,11,0.12); color: var(--warn); border: 1px solid rgba(245,158,11,0.25); }
-  .tag-linked { background: rgba(124,58,237,0.12); color: #a78bfa; border: 1px solid rgba(124,58,237,0.25); }
-
-  /* ——— ALERT ITEMS ——— */
-  .alert-item {
-    display: flex; align-items: flex-start; gap: 14px;
-    padding: 14px;
-    border-radius: 12px;
-    background: var(--surface2);
-    margin-bottom: 8px;
-    border-left: 3px solid transparent;
-    transition: all 0.2s;
-  }
-  .alert-item:hover { border-left-color: var(--accent); }
-  .alert-item.critical { border-left-color: var(--danger); }
-  .alert-item.warning { border-left-color: var(--warn); }
-  .alert-item.info { border-left-color: var(--accent2); }
-  .alert-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
-  .alert-content { flex: 1; }
-  .alert-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
-  .alert-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
-  .alert-time { font-size: 11px; color: var(--muted); white-space: nowrap; }
-
-  /* ——— TABLE ——— */
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; }
-  th {
-    text-align: left; padding: 10px 14px;
-    font-size: 10px; text-transform: uppercase;
-    letter-spacing: 1.5px; color: var(--muted);
-    border-bottom: 1px solid var(--border);
-    font-weight: 600;
-  }
-  td {
-    padding: 12px 14px;
-    font-size: 13px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  tr:hover td { background: var(--surface2); }
-  .user-cell { display: flex; align-items: center; gap: 10px; }
-  .user-avatar-sm {
-    width: 30px; height: 30px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700;
-    flex-shrink: 0;
-  }
-  .bg-pink { background: rgba(232,62,140,0.2); color: var(--accent); }
-  .bg-purple { background: rgba(124,58,237,0.2); color: #a78bfa; }
-  .bg-orange { background: rgba(245,158,11,0.2); color: var(--warn); }
-  .bg-blue { background: rgba(59,130,246,0.2); color: #60a5fa; }
-
-  /* ——— INPUT ——— */
-  .input-group { margin-bottom: 16px; }
-  .input-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: block; font-weight: 500; }
-  .input-field {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 14px;
-    color: var(--text);
-    font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .input-field:focus { border-color: var(--accent); }
-  textarea.input-field { resize: vertical; min-height: 100px; line-height: 1.6; }
-
-  /* ——— TIMELINE ——— */
-  .timeline { position: relative; padding-left: 24px; }
-  .timeline::before {
-    content: ''; position: absolute;
-    left: 8px; top: 0; bottom: 0;
-    width: 2px; background: linear-gradient(to bottom, var(--accent), transparent);
-  }
-  .tl-item { position: relative; margin-bottom: 20px; }
-  .tl-dot {
-    position: absolute; left: -20px; top: 4px;
-    width: 10px; height: 10px; border-radius: 50%;
-    background: var(--accent); border: 2px solid var(--bg);
-  }
-  .tl-dot.warn { background: var(--warn); }
-  .tl-dot.green { background: var(--accent3); }
-  .tl-time { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
-  .tl-text { font-size: 13px; }
-
-  /* ——— SLIDER ——— */
-  input[type="range"] {
-    -webkit-appearance: none;
-    width: 100%; height: 4px;
-    background: var(--surface2);
-    border-radius: 99px;
-    outline: none;
-  }
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px; height: 16px; border-radius: 50%;
-    background: var(--accent);
-    cursor: pointer;
-    box-shadow: 0 0 10px var(--glow);
-  }
-
-  /* ——— TOGGLE ——— */
-  .toggle-wrap { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
-  .toggle-info { flex: 1; }
-  .toggle-label { font-size: 13px; font-weight: 500; }
-  .toggle-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .toggle {
-    position: relative; width: 42px; height: 22px;
-    background: var(--surface2); border-radius: 99px;
-    cursor: pointer; border: 1px solid var(--border);
-    flex-shrink: 0; transition: background 0.2s;
-  }
-  .toggle.on { background: var(--accent); border-color: var(--accent); }
-  .toggle::after {
-    content: '';
-    position: absolute; top: 2px; left: 2px;
-    width: 16px; height: 16px; border-radius: 50%;
-    background: white;
-    transition: transform 0.2s;
-  }
-  .toggle.on::after { transform: translateX(20px); }
-
-  /* ——— DETECTION RESULT ——— */
-  .detection-result {
-    display: none;
-    animation: fadeIn 0.4s ease;
-  }
-  .detection-result.show { display: block; }
-  .result-banner {
-    display: flex; align-items: center; gap: 16px;
-    padding: 20px 24px;
-    border-radius: 14px;
-    margin-bottom: 20px;
-  }
-  .result-banner.fake { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); }
-  .result-banner.real { background: rgba(6,214,160,0.08); border: 1px solid rgba(6,214,160,0.25); }
-  .result-icon { font-size: 32px; }
-  .result-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; }
-  .result-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
-
-  /* ——— CHART ——— */
-  .mini-chart { display: flex; align-items: flex-end; gap: 4px; height: 50px; }
-  .mini-bar {
-    flex: 1; border-radius: 4px 4px 0 0;
-    background: linear-gradient(to top, var(--accent2), var(--accent));
-    opacity: 0.7;
-    transition: opacity 0.2s;
-  }
-  .mini-bar:hover { opacity: 1; }
-
-  /* ——— PATTERN VIZ ——— */
-  .pattern-row { display: flex; gap: 3px; margin-bottom: 3px; }
-  .pattern-cell {
-    width: 14px; height: 14px; border-radius: 3px;
-    background: var(--surface2);
-    transition: background 0.2s;
-  }
-  .pattern-cell.low { background: rgba(232,62,140,0.2); }
-  .pattern-cell.mid { background: rgba(232,62,140,0.5); }
-  .pattern-cell.high { background: var(--accent); }
-
-  /* ——— LEGAL DOC ——— */
-  .legal-doc {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    font-size: 13px;
-    line-height: 1.8;
-    color: var(--text);
-    max-height: 360px;
-    overflow-y: auto;
-    display: none;
-  }
-  .legal-doc.show { display: block; animation: fadeIn 0.3s ease; }
-  .legal-doc h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; text-align: center; margin-bottom: 16px; color: var(--accent); }
-  .legal-doc p { margin-bottom: 10px; }
-  .legal-doc strong { color: var(--text); }
-
-  /* ——— SCROLLBAR ——— */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(232,62,140,0.3); border-radius: 99px; }
-
-  /* ——— GLOW EFFECTS ——— */
-  .glow-pink { text-shadow: 0 0 20px rgba(232,62,140,0.5); }
-  .accent-text { color: var(--accent); }
-  .mb-20 { margin-bottom: 20px; }
-  .mb-12 { margin-bottom: 12px; }
-  .flex { display: flex; }
-  .gap-12 { gap: 12px; }
-  .gap-8 { gap: 8px; }
-  .items-center { align-items: center; }
-  .justify-between { justify-content: space-between; }
-  .mt-16 { margin-top: 16px; }
-  .mt-20 { margin-top: 20px; }
-  .muted { color: var(--muted); }
-  .f-13 { font-size: 13px; }
-  .f-12 { font-size: 12px; }
-  .fw-600 { font-weight: 600; }
-  .syne { font-family: 'Syne', sans-serif; font-weight: 700; }
-
-  /* ——— GRAPH NODE ——— */
-  .graph-canvas {
-    background: var(--surface2);
-    border-radius: 12px;
-    min-height: 200px;
-    position: relative;
-    overflow: hidden;
-  }
-  .graph-node {
-    position: absolute;
-    width: 44px; height: 44px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 700;
-    border: 2px solid;
-    cursor: default;
-    transition: transform 0.2s;
-  }
-  .graph-node:hover { transform: scale(1.1); z-index: 10; }
-  .graph-node.victim {
-    background: rgba(232,62,140,0.15); border-color: var(--accent); color: var(--accent);
-    width: 54px; height: 54px; font-size: 11px;
-  }
-  .graph-node.suspect {
-    background: rgba(239,68,68,0.1); border-color: var(--danger); color: var(--danger);
-  }
-  .graph-node.linked {
-    background: rgba(245,158,11,0.1); border-color: var(--warn); color: var(--warn);
-  }
-  .graph-label {
-    position: absolute;
-    font-size: 9px; color: var(--muted);
-    text-align: center; top: calc(100% + 3px); width: 60px;
-    left: 50%; transform: translateX(-50%);
-  }
-  .graph-line {
-    position: absolute;
-    background: rgba(232,62,140,0.2);
-    height: 1px;
-    transform-origin: left center;
-  }
-
-  /* ——— HERO BANNER ——— */
-  .hero-banner {
-    background: linear-gradient(135deg, rgba(232,62,140,0.1), rgba(124,58,237,0.08));
-    border: 1px solid rgba(232,62,140,0.15);
-    border-radius: 20px;
-    padding: 32px;
-    margin-bottom: 28px;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero-banner::before {
-    content: '🛡️';
-    position: absolute; right: 32px; top: 50%;
-    transform: translateY(-50%);
-    font-size: 80px; opacity: 0.08;
-  }
-  .hero-tagline {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 22px;
-    letter-spacing: -0.3px;
-    max-width: 500px;
-    line-height: 1.3;
-    margin-bottom: 10px;
-  }
-  .hero-sub { font-size: 13px; color: var(--muted); max-width: 420px; line-height: 1.6; }
-
-  /* ——— NOTIFICATION TOAST ——— */
-  .toast-container {
-    position: fixed; bottom: 24px; right: 24px;
-    z-index: 999; display: flex; flex-direction: column; gap: 8px;
-  }
-  .toast {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 18px;
-    display: flex; align-items: center; gap: 10px;
-    font-size: 13px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    animation: slideIn 0.3s ease;
-    min-width: 260px;
-  }
-  @keyframes slideIn {
-    from{opacity:0;transform:translateX(20px)}
-    to{opacity:1;transform:translateX(0)}
-  }
-  .toast.success { border-left: 3px solid var(--accent3); }
-  .toast.warn { border-left: 3px solid var(--warn); }
-  .toast.danger { border-left: 3px solid var(--danger); }
-
+:root {
+  --cream:     #fdf8f4;
+  --cream2:    #faf3ee;
+  --white:     #ffffff;
+  --rose:      #e8607a;
+  --rose-soft: #f4a4b3;
+  --rose-pale: #fce8ed;
+  --rose-bg:   #fff0f3;
+  --mauve:     #9b6b8a;
+  --mauve-pale:#f2eaf6;
+  --sage:      #6a9e7f;
+  --sage-pale: #e8f4ec;
+  --amber:     #d97c3a;
+  --amber-pale:#fef3e8;
+  --ink:       #3a2d35;
+  --ink2:      #6b5460;
+  --muted:     #a08898;
+  --border:    #eedde5;
+  --shadow:    rgba(155,107,138,0.12);
+  --shadow-lg: rgba(155,107,138,0.2);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle at 15% 20%,rgba(232,96,122,0.04) 0%,transparent 50%),radial-gradient(circle at 85% 80%,rgba(155,107,138,0.05) 0%,transparent 50%);pointer-events:none;z-index:0}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:252px;background:var(--white);border-right:1.5px solid var(--border);display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 24px var(--shadow)}
+.logo-wrap{padding:26px 22px 20px;border-bottom:1.5px solid var(--border);background:linear-gradient(135deg,var(--rose-bg),var(--mauve-pale))}
+.logo-icon{font-size:28px;margin-bottom:5px}
+.logo-name{font-family:'Playfair Display',serif;font-weight:700;font-size:22px;color:var(--rose);letter-spacing:-0.3px}
+.logo-tag{font-size:11px;color:var(--mauve);font-weight:600;margin-top:2px;letter-spacing:0.3px}
+.nav{padding:16px 12px;flex:1;overflow-y:auto}
+.nav-sec{font-size:9.5px;text-transform:uppercase;letter-spacing:1.8px;color:var(--muted);padding:0 10px;margin:16px 0 6px;font-weight:700}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;border-radius:12px;border:none;background:transparent;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13.5px;font-weight:600;color:var(--ink2);text-align:left;transition:all .2s;margin-bottom:2px;position:relative}
+.nav-btn:hover{background:var(--rose-bg);color:var(--rose)}
+.nav-btn.active{background:linear-gradient(90deg,var(--rose-pale),var(--mauve-pale));color:var(--rose)}
+.nav-btn.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;border-radius:99px;background:var(--rose)}
+.nav-em{font-size:17px;width:22px;text-align:center}
+.sidebar-btm{padding:14px;border-top:1.5px solid var(--border);background:var(--cream2)}
+.profile-card{display:flex;align-items:center;gap:10px;background:var(--white);border-radius:14px;padding:11px 13px;border:1.5px solid var(--border)}
+.p-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--mauve));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;flex-shrink:0}
+.p-name{font-size:13px;font-weight:700;color:var(--ink)}
+.p-status{font-size:11px;color:var(--sage);font-weight:600;display:flex;align-items:center;gap:4px}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--sage);display:inline-block;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.main{margin-left:252px;min-height:100vh;position:relative;z-index:1}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 34px;background:rgba(253,248,244,.92);backdrop-filter:blur(12px);border-bottom:1.5px solid var(--border);position:sticky;top:0;z-index:50}
+.tb-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:700;color:var(--ink)}
+.tb-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.tb-r{display:flex;align-items:center;gap:10px}
+.safe-badge{display:flex;align-items:center;gap:6px;background:var(--sage-pale);border:1.5px solid rgba(106,158,127,.3);color:var(--sage);font-size:12px;font-weight:700;padding:6px 13px;border-radius:20px}
+.safe-badge .d{width:7px;height:7px;border-radius:50%;background:var(--sage);animation:blink 1.5s infinite}
+.page{display:none;padding:28px 34px;animation:softIn .3s ease}
+.page.active{display:block}
+@keyframes softIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--white);border:1.5px solid var(--border);border-radius:20px;padding:22px;box-shadow:0 2px 14px var(--shadow);transition:box-shadow .2s}
+.card:hover{box-shadow:0 5px 24px var(--shadow-lg)}
+.cl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.mb-20{margin-bottom:20px}.mb-16{margin-bottom:16px}.mb-12{margin-bottom:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}
+.scard{background:var(--white);border:1.5px solid var(--border);border-radius:20px;padding:20px;box-shadow:0 2px 10px var(--shadow);position:relative;overflow:hidden}
+.scard::after{content:attr(data-em);position:absolute;right:14px;top:14px;font-size:26px;opacity:.15}
+.chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:9px}
+.chip-r{background:var(--rose-pale);color:var(--rose)}
+.chip-m{background:var(--mauve-pale);color:var(--mauve)}
+.chip-s{background:var(--sage-pale);color:var(--sage)}
+.chip-a{background:var(--amber-pale);color:var(--amber)}
+.chip-d{background:#ffeaea;color:#d14b4b}
+.snum{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;line-height:1;margin-bottom:5px}
+.r-num{color:var(--rose)}.m-num{color:var(--mauve)}.s-num{color:var(--sage)}.a-num{color:var(--amber)}.d-num{color:#d14b4b}
+.sdesc{font-size:12px;color:var(--muted);font-weight:500}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:13px;font-family:'Nunito',sans-serif;font-size:13.5px;font-weight:700;cursor:pointer;border:none;transition:all .2s}
+.btn-rose{background:linear-gradient(135deg,var(--rose),#c4405c);color:white;box-shadow:0 4px 16px rgba(232,96,122,.3)}
+.btn-rose:hover{transform:translateY(-2px);box-shadow:0 7px 22px rgba(232,96,122,.4)}
+.btn-soft{background:var(--rose-bg);color:var(--rose);border:1.5px solid var(--rose-pale)}
+.btn-soft:hover{background:var(--rose-pale)}
+.btn-sage{background:var(--sage-pale);color:var(--sage);border:1.5px solid rgba(106,158,127,.3)}
+.btn-outline{background:transparent;color:var(--ink2);border:1.5px solid var(--border)}
+.btn-outline:hover{border-color:var(--rose);color:var(--rose)}
+.btn-danger{background:#ffeaea;color:#d14b4b;border:1.5px solid #ffc5c5}
+.btn-danger:hover{background:#ffd5d5}
+.btn-sm{padding:7px 15px;font-size:12.5px;border-radius:10px}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.tag-h{background:#ffeaea;color:#d14b4b;border:1.5px solid #ffc5c5}
+.tag-m{background:var(--amber-pale);color:var(--amber);border:1.5px solid #f5d9bb}
+.tag-l{background:var(--sage-pale);color:var(--sage);border:1.5px solid rgba(106,158,127,.3)}
+.tag-fk{background:#ffeaea;color:#d14b4b;border:1.5px solid #ffc5c5}
+.tag-rl{background:var(--sage-pale);color:var(--sage);border:1.5px solid rgba(106,158,127,.3)}
+.tag-lk{background:var(--mauve-pale);color:var(--mauve);border:1.5px solid rgba(155,107,138,.3)}
+.ac{display:flex;align-items:flex-start;gap:13px;padding:14px;border-radius:14px;background:var(--cream2);border:1.5px solid var(--border);margin-bottom:9px;border-left:4px solid transparent;transition:all .2s}
+.ac:hover{transform:translateX(3px);box-shadow:0 3px 12px var(--shadow)}
+.ac.crit{border-left-color:#d14b4b;background:#fff8f8}
+.ac.warn{border-left-color:var(--amber);background:var(--amber-pale)}
+.ac.info{border-left-color:var(--mauve);background:var(--mauve-pale)}
+.ae{font-size:20px;flex-shrink:0;margin-top:2px}
+.ab{flex:1}
+.at{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.ad{font-size:12px;color:var(--ink2);line-height:1.5}
+.atm{font-size:11px;color:var(--muted);white-space:nowrap;font-weight:600}
+.pw{background:var(--cream2);border-radius:99px;height:7px;overflow:hidden}
+.pb{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.34,1.56,.64,1)}
+.pb-r{background:linear-gradient(90deg,var(--rose-soft),var(--rose))}
+.pb-s{background:linear-gradient(90deg,#9ed4b3,var(--sage))}
+.pb-a{background:linear-gradient(90deg,#f5c89a,var(--amber))}
+.pb-d{background:linear-gradient(90deg,#f5a0a0,#d14b4b)}
+.pb-m{background:linear-gradient(90deg,#d4adcb,var(--mauve))}
+.upload-z{border:2.5px dashed var(--rose-soft);border-radius:20px;padding:44px 28px;text-align:center;cursor:pointer;transition:all .3s;background:var(--rose-bg);position:relative}
+.upload-z:hover{border-color:var(--rose);background:var(--rose-pale);transform:scale(1.01)}
+.upload-z input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.u-ico{font-size:42px;margin-bottom:11px}
+.u-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px}
+.u-sub{font-size:13px;color:var(--muted)}
+.rbox{display:none;animation:softIn .4s ease}
+.rbox.show{display:block}
+.rbanner{display:flex;align-items:center;gap:15px;padding:18px 22px;border-radius:16px;margin-bottom:16px}
+.rbanner.fake{background:#fff3f3;border:2px solid #ffc5c5}
+.rbanner.real{background:var(--sage-pale);border:2px solid rgba(106,158,127,.4)}
+.r-ico{font-size:34px}
+.r-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:700}
+.r-sub{font-size:13px;color:var(--ink2);margin-top:3px}
+.inp-g{margin-bottom:14px}
+.inp-l{display:block;font-size:12.5px;font-weight:700;color:var(--ink2);margin-bottom:5px}
+.inp{width:100%;background:var(--cream2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;font-size:13.5px;font-family:'Nunito',sans-serif;color:var(--ink);outline:none;transition:border-color .2s,background .2s}
+.inp:focus{border-color:var(--rose);background:var(--white);box-shadow:0 0 0 3px rgba(232,96,122,.1)}
+select.inp{cursor:pointer}
+textarea.inp{resize:vertical;min-height:96px;line-height:1.7}
+.tog-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1.5px solid var(--border)}
+.tog-row:last-child{border-bottom:none}
+.tog-txt{flex:1}
+.tog-name{font-size:13.5px;font-weight:700;color:var(--ink)}
+.tog-hint{font-size:11.5px;color:var(--muted);margin-top:2px}
+.tog-pill{width:44px;height:22px;border-radius:99px;background:var(--border);cursor:pointer;border:none;position:relative;transition:background .25s;flex-shrink:0}
+.tog-pill.on{background:var(--rose)}
+.tog-pill::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:white;transition:transform .25s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.tog-pill.on::after{transform:translateX(22px)}
+.ring{position:relative;width:144px;height:144px}
+.ring svg{transform:rotate(-90deg)}
+.ring-lbl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rnum{font-family:'Playfair Display',serif;font-size:36px;font-weight:700}
+.rwrd{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.ring-wrap{display:flex;flex-direction:column;align-items:center;padding:14px 18px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:9px 13px;font-size:10px;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted);font-weight:700;border-bottom:1.5px solid var(--border)}
+td{padding:12px 13px;font-size:13px;border-bottom:1.5px solid var(--cream2)}
+tr:hover td{background:var(--rose-bg)}
+.uc{display:flex;align-items:center;gap:9px}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.av-r{background:var(--rose-pale);color:var(--rose)}
+.av-m{background:var(--mauve-pale);color:var(--mauve)}
+.av-a{background:var(--amber-pale);color:var(--amber)}
+.av-s{background:var(--sage-pale);color:var(--sage)}
+.tl{padding-left:22px;position:relative}
+.tl::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:linear-gradient(to bottom,var(--rose-soft),transparent);border-radius:99px}
+.tl-i{position:relative;margin-bottom:20px}
+.tl-dot{position:absolute;left:-18px;top:3px;width:11px;height:11px;border-radius:50%;background:white;border:2.5px solid var(--rose)}
+.tl-dot.sg{border-color:var(--sage)}
+.tl-dot.am{border-color:var(--amber)}
+.tl-tm{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:2px}
+.tl-tx{font-size:13px;color:var(--ink);line-height:1.5}
+.bc{display:flex;align-items:flex-end;gap:4px}
+.bar{flex:1;border-radius:5px 5px 0 0;transition:opacity .2s;cursor:default}
+.bar:hover{opacity:.7}
+.graph-area{background:var(--cream2);border-radius:14px;min-height:210px;position:relative;overflow:hidden;border:1.5px dashed var(--border)}
+.gnode{position:absolute;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;border:2.5px solid;cursor:default;transition:transform .2s;font-family:'Nunito',sans-serif}
+.gnode:hover{z-index:10}
+.gnode.victim{width:52px;height:52px;font-size:11px;background:var(--rose-pale);border-color:var(--rose);color:var(--rose)}
+.gnode.suspect{width:44px;height:44px;background:#ffeaea;border-color:#d14b4b;color:#d14b4b}
+.gnode.linked{width:38px;height:38px;background:var(--amber-pale);border-color:var(--amber);color:var(--amber)}
+.gnlbl{position:absolute;font-size:9px;color:var(--muted);font-weight:700;white-space:nowrap;top:calc(100% + 4px);left:50%;transform:translateX(-50%)}
+.gedge{position:absolute;background:var(--rose-soft);height:1.5px;transform-origin:left center;opacity:.55}
+.hero{background:linear-gradient(135deg,var(--rose-bg),var(--mauve-pale));border:1.5px solid var(--rose-pale);border-radius:22px;padding:30px 34px;margin-bottom:26px;position:relative;overflow:hidden}
+.hero::after{content:'🌸';font-size:96px;position:absolute;right:26px;top:50%;transform:translateY(-50%);opacity:.1}
+.hero-greet{font-size:12.5px;color:var(--rose);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:7px}
+.hero-title{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--ink);line-height:1.35;max-width:480px;margin-bottom:9px}
+.hero-title em{color:var(--rose);font-style:italic}
+.hero-sub{font-size:13.5px;color:var(--ink2);line-height:1.7;max-width:430px}
+.hero-btns{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+.legal-preview{display:none;background:var(--white);border:2px solid var(--border);border-radius:16px;padding:26px;font-size:13px;line-height:1.9;color:var(--ink);max-height:360px;overflow-y:auto;box-shadow:0 4px 22px var(--shadow);animation:softIn .3s ease}
+.legal-preview.show{display:block}
+.legal-preview h3{font-family:'Playfair Display',serif;font-size:17px;text-align:center;color:var(--rose);margin-bottom:16px;font-weight:700}
+.legal-preview p{margin-bottom:11px;color:var(--ink2)}
+.legal-preview strong{color:var(--ink)}
+.toast-stack{position:fixed;bottom:22px;right:22px;z-index:999;display:flex;flex-direction:column;gap:7px}
+.toast{background:var(--white);border:1.5px solid var(--border);border-radius:13px;padding:13px 17px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:9px;box-shadow:0 5px 24px var(--shadow-lg);min-width:270px;animation:slideUp .3s ease;color:var(--ink)}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.toast.success{border-left:4px solid var(--sage)}
+.toast.warn{border-left:4px solid var(--amber)}
+.toast.danger{border-left:4px solid #d14b4b}
+input[type="range"]{-webkit-appearance:none;width:100%;height:4px;border-radius:99px;background:var(--rose-pale);outline:none}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--rose);cursor:pointer;box-shadow:0 2px 8px rgba(232,96,122,.35)}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--rose-pale);border-radius:99px}
+.heat-row{display:flex;gap:3px;margin-bottom:3px}
+.heat-cell{width:14px;height:14px;border-radius:4px;background:var(--cream2)}
+.h1{background:rgba(232,96,122,.15)}.h2{background:rgba(232,96,122,.4)}.h3{background:var(--rose)}
+.flex{display:flex}.ic{align-items:center}.jb{justify-content:space-between}.gap-10{gap:10px}.gap-12{gap:12px}
+.f12{font-size:12px}.f13{font-size:13px}.f14{font-size:14px}.fw7{font-weight:700}.muted{color:var(--muted)}.ink2{color:var(--ink2)}.rose{color:var(--rose)}
+.playfair{font-family:'Playfair Display',serif}
+.safe-score-wrap{background:linear-gradient(135deg,var(--sage-pale),#d4ede0);border:2px solid rgba(106,158,127,.3);border-radius:20px;padding:26px;text-align:center;margin-bottom:18px}
+.ssn{font-family:'Playfair Display',serif;font-size:60px;font-weight:700;color:var(--sage);line-height:1}
+.ssl{font-size:13px;color:var(--sage);font-weight:700;margin-top:4px}
+.ssd{font-size:12px;color:var(--ink2);margin-top:7px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;animation:spin 1.2s linear infinite}
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <aside class="sidebar">
-  <div class="logo">
-    <div class="logo-mark">SHEild AI</div>
-    <div class="logo-sub">Predictive Cyber Safety</div>
+  <div class="logo-wrap">
+    <div class="logo-icon">🌸</div>
+    <div class="logo-name">HerSaathi</div>
+    <div class="logo-tag">Your digital safety companion</div>
   </div>
   <nav class="nav">
-    <div class="nav-group-label">Overview</div>
-    <button class="nav-item active" onclick="navigate('dashboard', this)">
-      <span class="nav-icon">📊</span> Dashboard
-    </button>
-
-    <div class="nav-group-label">Detection</div>
-    <button class="nav-item" onclick="navigate('deepfake', this)">
-      <span class="nav-icon">🎭</span> Deepfake Detector
-    </button>
-    <button class="nav-item" onclick="navigate('stalker', this)">
-      <span class="nav-icon">👁️</span> Stalker Engine
-    </button>
-
-    <div class="nav-group-label">Analysis</div>
-    <button class="nav-item" onclick="navigate('risk', this)">
-      <span class="nav-icon">📈</span> Risk Scores
-    </button>
-    <button class="nav-item" onclick="navigate('linking', this)">
-      <span class="nav-icon">🔗</span> Account Linking
-    </button>
-
-    <div class="nav-group-label">Protection</div>
-    <button class="nav-item" onclick="navigate('defense', this)">
-      <span class="nav-icon">🛡️</span> Auto-Defense
-    </button>
-    <button class="nav-item" onclick="navigate('legal', this)">
-      <span class="nav-icon">⚖️</span> Legal Action Kit
-    </button>
+    <div class="nav-sec">Home</div>
+    <button class="nav-btn active" onclick="goTo('home',this)"><span class="nav-em">🏠</span> My Safety Home</button>
+    <div class="nav-sec">Protect Me</div>
+    <button class="nav-btn" onclick="goTo('check',this)"><span class="nav-em">🔍</span> Check a Photo / Video</button>
+    <button class="nav-btn" onclick="goTo('watch',this)"><span class="nav-em">👁️</span> Who's Watching Me?</button>
+    <div class="nav-sec">Understand Risks</div>
+    <button class="nav-btn" onclick="goTo('scores',this)"><span class="nav-em">📊</span> Threat Scores</button>
+    <button class="nav-btn" onclick="goTo('links',this)"><span class="nav-em">🔗</span> Connected Accounts</button>
+    <div class="nav-sec">Take Action</div>
+    <button class="nav-btn" onclick="goTo('shield',this)"><span class="nav-em">🛡️</span> My Shield Settings</button>
+    <button class="nav-btn" onclick="goTo('report',this)"><span class="nav-em">📝</span> File a Complaint</button>
   </nav>
-  <div class="sidebar-footer">
-    <div class="user-pill">
-      <div class="avatar">P</div>
-      <div class="user-info">
-        <div class="user-name">Priya Sharma</div>
-        <div class="user-status">● Protected</div>
+  <div class="sidebar-btm">
+    <div class="profile-card">
+      <div class="p-av">P</div>
+      <div>
+        <div class="p-name">Priya Sharma</div>
+        <div class="p-status"><span class="sdot"></span> Safely protected</div>
       </div>
     </div>
   </div>
 </aside>
 
-<!-- MAIN -->
 <main class="main">
-  <!-- TOPBAR -->
   <div class="topbar">
-    <div class="topbar-title" id="page-title">Safety Dashboard</div>
-    <div class="topbar-right">
-      <div class="badge-live"><div class="dot-pulse"></div> Live Monitoring</div>
-      <button class="btn btn-primary btn-sm" onclick="showToast('🚨 Threat scan initiated — analyzing 247 signals...', 'warn')">🔍 Scan Now</button>
+    <div>
+      <div class="tb-title" id="pg-head">My Safety Home 🌸</div>
+      <div class="tb-sub" id="pg-sub">Good morning, Priya. Your digital space is being watched over.</div>
+    </div>
+    <div class="tb-r">
+      <div class="safe-badge"><span class="d"></span> Monitoring Active</div>
+      <button class="btn btn-rose btn-sm" onclick="toast('🔍 Running a full safety scan for you...','warn')">Quick Scan</button>
     </div>
   </div>
 
-  <!-- ====== DASHBOARD PAGE ====== -->
-  <div class="page active" id="page-dashboard">
-    <div class="hero-banner">
-      <div class="hero-tagline">Predicts, prevents & empowers — <span style="color:var(--accent)">before harm happens</span></div>
-      <div class="hero-sub">SHEild AI monitors your digital presence across platforms, detecting threats in real time and triggering protective actions automatically.</div>
-    </div>
-
-    <div class="grid-4 mb-20">
-      <div class="stat-card pink">
-        <div class="stat-label">Threats Detected</div>
-        <div class="stat-value pink">47</div>
-        <div class="stat-change">This month · <span>+12 vs last</span></div>
-      </div>
-      <div class="stat-card purple">
-        <div class="stat-label">Deepfakes Flagged</div>
-        <div class="stat-value purple">8</div>
-        <div class="stat-change">Past 30 days · <span>+3 new</span></div>
-      </div>
-      <div class="stat-card warn">
-        <div class="stat-label">High-Risk Accounts</div>
-        <div class="stat-value warn">13</div>
-        <div class="stat-change">Currently tracked · <span>+2 today</span></div>
-      </div>
-      <div class="stat-card green">
-        <div class="stat-label">Auto-Blocks Active</div>
-        <div class="stat-value green">31</div>
-        <div class="stat-change">Auto-defense · <span style="color:var(--accent3)">Active</span></div>
+  <!-- HOME -->
+  <div class="page active" id="pg-home">
+    <div class="hero">
+      <div class="hero-greet">Hello, Priya 🌷</div>
+      <div class="hero-title">You are <em>safe</em> today — and we're here to keep it that way</div>
+      <div class="hero-sub">HerSaathi quietly watches your digital life so you don't have to worry. When something feels wrong, we catch it — and help you act.</div>
+      <div class="hero-btns">
+        <button class="btn btn-rose" onclick="goTo('check',document.querySelectorAll('.nav-btn')[1])">🔍 Check a Photo Now</button>
+        <button class="btn btn-soft" onclick="goTo('watch',document.querySelectorAll('.nav-btn')[2])">👁️ See Who's Watching</button>
       </div>
     </div>
 
-    <div class="grid-2 mb-20">
-      <div class="card">
-        <div class="card-title">🚨 Live Alerts</div>
-        <div class="alert-item critical">
-          <div class="alert-icon">🔴</div>
-          <div class="alert-content">
-            <div class="alert-title">Deepfake content detected · Account @shadow_x99</div>
-            <div class="alert-desc">Manipulated image (92% confidence) linked to 3 previous incidents. Auto-block triggered.</div>
-          </div>
-          <div class="alert-time">2m ago</div>
-        </div>
-        <div class="alert-item warning">
-          <div class="alert-icon">🟡</div>
-          <div class="alert-content">
-            <div class="alert-title">Unusual message frequency · @anon_user441</div>
-            <div class="alert-desc">18 messages in 2 hours. Stalker risk score elevated to 74/100.</div>
-          </div>
-          <div class="alert-time">14m ago</div>
-        </div>
-        <div class="alert-item info">
-          <div class="alert-icon">🔵</div>
-          <div class="alert-content">
-            <div class="alert-title">Suspicious profile view cluster · 5 new accounts</div>
-            <div class="alert-desc">Similar creation dates and behavior patterns detected. Possible coordinated harassment.</div>
-          </div>
-          <div class="alert-time">1h ago</div>
-        </div>
-        <div class="alert-item critical">
-          <div class="alert-icon">🔴</div>
-          <div class="alert-content">
-            <div class="alert-title">Linked account network identified · 4 accounts</div>
-            <div class="alert-desc">Behavior similarity analysis links @usr_tmp1 to known harasser cluster.</div>
-          </div>
-          <div class="alert-time">3h ago</div>
-        </div>
-      </div>
+    <div class="g4 mb-20">
+      <div class="scard" data-em="🛡️"><div class="chip chip-r">This Month</div><div class="snum r-num">47</div><div class="sdesc">Threats we caught for you</div></div>
+      <div class="scard" data-em="🎭"><div class="chip chip-m">Deepfakes</div><div class="snum m-num">8</div><div class="sdesc">Fake images/videos flagged</div></div>
+      <div class="scard" data-em="⚠️"><div class="chip chip-a">Watch List</div><div class="snum a-num">13</div><div class="sdesc">Suspicious accounts tracked</div></div>
+      <div class="scard" data-em="✅"><div class="chip chip-s">Auto-Blocked</div><div class="snum s-num">31</div><div class="sdesc">Harmful accounts stopped</div></div>
+    </div>
 
+    <div class="g2 mb-20">
       <div class="card">
-        <div class="card-title">📅 Activity Heatmap · Last 7 Days</div>
-        <div id="heatmap" style="margin-bottom:16px"></div>
-        <div class="flex justify-between" style="font-size:11px; color:var(--muted); margin-top:8px">
-          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-        </div>
+        <div class="cl">🔔 What's Happening Right Now</div>
+        <div class="ac crit"><div class="ae">🔴</div><div class="ab"><div class="at">Fake image detected — @shadow_x99</div><div class="ad">We found a manipulated photo (92% sure it's fake) linked to someone who's bothered you before. We've blocked them.</div></div><div class="atm">2m ago</div></div>
+        <div class="ac warn"><div class="ae">🟡</div><div class="ab"><div class="at">Too many messages — @anon441</div><div class="ad">This account sent you 18 messages in 2 hours. That's unusual. We've raised their risk level.</div></div><div class="atm">14m ago</div></div>
+        <div class="ac info"><div class="ae">🔵</div><div class="ab"><div class="at">5 new accounts viewed your profile</div><div class="ad">They all look similar — same creation date, same behavior. Possibly the same person.</div></div><div class="atm">1h ago</div></div>
+        <div class="ac crit"><div class="ae">🔴</div><div class="ab"><div class="at">Connected accounts found — 4 profiles</div><div class="ad">We linked 4 accounts back to one person targeting you. Blocked all of them.</div></div><div class="atm">3h ago</div></div>
+      </div>
+      <div class="card">
+        <div class="cl">📅 Suspicious Activity — Last 7 Days</div>
+        <div id="hmap"></div>
+        <div class="flex jb" style="font-size:10px;color:var(--muted);font-weight:700;padding:0 2px;margin-top:4px"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
         <div style="margin-top:20px">
-          <div class="card-title">📊 Threat Volume Trend</div>
-          <div class="mini-chart" id="threat-chart"></div>
-          <div class="flex justify-between mt-16" style="font-size:11px;color:var(--muted)">
-            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
-          </div>
+          <div class="cl">📈 Threat Volume (6 Months)</div>
+          <div class="bc" id="tchart" style="height:56px"></div>
+          <div class="flex jb mt-16" style="font-size:10px;color:var(--muted);font-weight:700"><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span></div>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-title">🕐 Recent Event Timeline</div>
-      <div class="timeline">
-        <div class="tl-item">
-          <div class="tl-dot"></div>
-          <div class="tl-time">Today, 11:43 AM</div>
-          <div class="tl-text">Deepfake image detected from <strong>@shadow_x99</strong> — auto-blocked and evidence logged</div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot warn"></div>
-          <div class="tl-time">Today, 09:21 AM</div>
-          <div class="tl-text">Stalker risk score for <strong>@anon_user441</strong> crossed 70 threshold — alert sent to emergency contacts</div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot green"></div>
-          <div class="tl-time">Yesterday, 6:50 PM</div>
-          <div class="tl-text">Legal complaint bundle auto-generated for cyber harassment incident #CH-2024-031</div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot"></div>
-          <div class="tl-time">Yesterday, 2:12 PM</div>
-          <div class="tl-text">Account linking analysis connected <strong>4 new accounts</strong> to existing harasser profile cluster</div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-dot green"></div>
-          <div class="tl-time">Mar 15, 10:00 AM</div>
-          <div class="tl-text">Auto-defense mode blocked <strong>7 accounts</strong> following pattern spike — visibility restricted</div>
+    <div class="g2">
+      <div class="safe-score-wrap">
+        <div class="ssn">78</div>
+        <div class="ssl">Your Safety Score Today</div>
+        <div class="ssd">Lower threats = higher score. Your score improved by 6 points this week! 🎉</div>
+      </div>
+      <div class="card">
+        <div class="cl">🌸 Recent Events</div>
+        <div class="tl">
+          <div class="tl-i"><div class="tl-dot"></div><div class="tl-tm">Today, 11:43 AM</div><div class="tl-tx">Fake image from <strong>@shadow_x99</strong> detected and blocked 🚫</div></div>
+          <div class="tl-i"><div class="tl-dot am"></div><div class="tl-tm">Today, 9:21 AM</div><div class="tl-tx"><strong>@anon_user441</strong>'s risk score crossed our threshold — your contacts were alerted</div></div>
+          <div class="tl-i"><div class="tl-dot sg"></div><div class="tl-tm">Yesterday, 6:50 PM</div><div class="tl-tx">Legal complaint bundle saved — ready to file anytime 📋</div></div>
+          <div class="tl-i"><div class="tl-dot sg"></div><div class="tl-tm">Mar 15</div><div class="tl-tx">7 suspicious accounts auto-blocked after a harassment spike ✅</div></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ====== DEEPFAKE PAGE ====== -->
-  <div class="page" id="page-deepfake">
-    <div class="section-header">
-      <div class="section-title">🎭 Deepfake Detection Module</div>
-      <div class="section-desc">Upload any image or video to analyze for AI-generated manipulation or deepfake content</div>
-    </div>
-
-    <div class="grid-2">
+  <!-- CHECK PHOTO/VIDEO -->
+  <div class="page" id="pg-check">
+    <div class="g2">
       <div>
-        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
-          <input type="file" id="file-input" accept="image/*,video/*" onchange="startAnalysis(this)">
-          <div class="upload-icon" id="upload-icon">📂</div>
-          <div class="upload-title" id="upload-title">Drop image or video here</div>
-          <div class="upload-sub" id="upload-sub">Supports JPG, PNG, MP4 · Max 50MB</div>
+        <div class="upload-z" id="upz" onclick="document.getElementById('fup').click()">
+          <input type="file" id="fup" accept="image/*,video/*" onchange="runDetect(this)">
+          <div class="u-ico" id="uico">🌸</div>
+          <div class="u-title" id="utitle">Drop a photo or video here</div>
+          <div class="u-sub" id="usub">We'll check if it's been faked — JPG, PNG, MP4 supported</div>
         </div>
-
-        <div class="detection-result mt-20" id="detection-result">
-          <div class="result-banner fake" id="result-banner">
-            <div class="result-icon" id="result-icon">⚠️</div>
-            <div>
-              <div class="result-title" id="result-title">DEEPFAKE DETECTED</div>
-              <div class="result-sub" id="result-sub">High confidence manipulation detected — content flagged</div>
-            </div>
+        <div class="rbox mt-20" id="dres">
+          <div class="rbanner fake" id="rbanner">
+            <div class="r-ico" id="rico">⚠️</div>
+            <div><div class="r-title" id="rtitle">This looks fake</div><div class="r-sub" id="rsub">Our AI found signs of manipulation. Evidence saved for you.</div></div>
           </div>
-
           <div class="card">
-            <div class="card-title">📊 Analysis Breakdown</div>
-            <div style="margin-bottom:14px">
-              <div class="flex justify-between mb-12">
-                <span class="f-13">Facial Inconsistency</span>
-                <span class="f-13 accent-text fw-600" id="sc1">87%</span>
-              </div>
-              <div class="progress-bar-wrap"><div class="progress-bar pb-pink" id="bar1" style="width:0%"></div></div>
-            </div>
-            <div style="margin-bottom:14px">
-              <div class="flex justify-between mb-12">
-                <span class="f-13">Lighting Artifacts</span>
-                <span class="f-13 accent-text fw-600" id="sc2">73%</span>
-              </div>
-              <div class="progress-bar-wrap"><div class="progress-bar pb-pink" id="bar2" style="width:0%"></div></div>
-            </div>
-            <div style="margin-bottom:14px">
-              <div class="flex justify-between mb-12">
-                <span class="f-13">Temporal Coherence</span>
-                <span class="f-13 accent-text fw-600" id="sc3">91%</span>
-              </div>
-              <div class="progress-bar-wrap"><div class="progress-bar pb-pink" id="bar3" style="width:0%"></div></div>
-            </div>
-            <div style="margin-bottom:14px">
-              <div class="flex justify-between mb-12">
-                <span class="f-13">GAN Fingerprint Match</span>
-                <span class="f-13 accent-text fw-600" id="sc4">64%</span>
-              </div>
-              <div class="progress-bar-wrap"><div class="progress-bar pb-pink" id="bar4" style="width:0%"></div></div>
-            </div>
-            <div class="mt-16 flex gap-12">
-              <button class="btn btn-primary btn-sm" onclick="showToast('📋 Evidence bundle generated & saved', 'success')">💾 Save Evidence</button>
-              <button class="btn btn-danger btn-sm" onclick="showToast('🚨 Auto-block activated for source account', 'warn')">🚫 Block Source</button>
+            <div class="cl">🔬 What We Found</div>
+            <div style="margin-bottom:13px"><div class="flex jb mb-12 f13"><span>Face inconsistency</span><span class="fw7" id="s1" style="color:#d14b4b">87%</span></div><div class="pw"><div class="pb pb-d" id="b1" style="width:0%"></div></div></div>
+            <div style="margin-bottom:13px"><div class="flex jb mb-12 f13"><span>Unnatural lighting</span><span class="fw7" id="s2" style="color:#d14b4b">73%</span></div><div class="pw"><div class="pb pb-r" id="b2" style="width:0%"></div></div></div>
+            <div style="margin-bottom:13px"><div class="flex jb mb-12 f13"><span>AI generation fingerprint</span><span class="fw7" id="s3" style="color:#d14b4b">91%</span></div><div class="pw"><div class="pb pb-d" id="b3" style="width:0%"></div></div></div>
+            <div style="margin-bottom:13px"><div class="flex jb mb-12 f13"><span>Frame consistency</span><span class="fw7" id="s4" style="color:#d14b4b">64%</span></div><div class="pw"><div class="pb pb-r" id="b4" style="width:0%"></div></div></div>
+            <div class="flex gap-12 mt-16">
+              <button class="btn btn-rose btn-sm" onclick="toast('💾 Evidence saved securely — available in File a Complaint','success')">💾 Save Evidence</button>
+              <button class="btn btn-danger btn-sm" onclick="toast('🚫 Account blocked — they can no longer contact you','warn')">🚫 Block Sender</button>
             </div>
           </div>
         </div>
       </div>
-
       <div>
         <div class="card mb-20">
-          <div class="card-title">🗂️ Recent Scans</div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>File</th><th>Result</th><th>Confidence</th><th>Time</th></tr></thead>
-              <tbody>
-                <tr>
-                  <td>profile_img_01.jpg</td>
-                  <td><span class="tag tag-fake">DEEPFAKE</span></td>
-                  <td style="color:var(--danger)">92%</td>
-                  <td class="muted f-12">2h ago</td>
-                </tr>
-                <tr>
-                  <td>video_clip_x.mp4</td>
-                  <td><span class="tag tag-fake">DEEPFAKE</span></td>
-                  <td style="color:var(--danger)">88%</td>
-                  <td class="muted f-12">1d ago</td>
-                </tr>
-                <tr>
-                  <td>screenshot_2024.png</td>
-                  <td><span class="tag tag-real">AUTHENTIC</span></td>
-                  <td style="color:var(--accent3)">3%</td>
-                  <td class="muted f-12">2d ago</td>
-                </tr>
-                <tr>
-                  <td>photo_send.jpg</td>
-                  <td><span class="tag tag-real">AUTHENTIC</span></td>
-                  <td style="color:var(--accent3)">7%</td>
-                  <td class="muted f-12">3d ago</td>
-                </tr>
-                <tr>
-                  <td>story_frame.png</td>
-                  <td><span class="tag tag-fake">DEEPFAKE</span></td>
-                  <td style="color:var(--danger)">79%</td>
-                  <td class="muted f-12">5d ago</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">ℹ️ How It Works</div>
-          <div class="timeline" style="padding-left:20px">
-            <div class="tl-item">
-              <div class="tl-dot green"></div>
-              <div class="tl-text f-13"><strong>Step 1:</strong> Multi-model ensemble analysis (FaceForensics++ trained)</div>
-            </div>
-            <div class="tl-item">
-              <div class="tl-dot green"></div>
-              <div class="tl-text f-13"><strong>Step 2:</strong> Facial landmark consistency check across frames</div>
-            </div>
-            <div class="tl-item">
-              <div class="tl-dot green"></div>
-              <div class="tl-text f-13"><strong>Step 3:</strong> GAN fingerprint detection via frequency domain analysis</div>
-            </div>
-            <div class="tl-item">
-              <div class="tl-dot green"></div>
-              <div class="tl-text f-13"><strong>Step 4:</strong> Cross-reference with known harasser account database</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ====== STALKER ENGINE ====== -->
-  <div class="page" id="page-stalker">
-    <div class="section-header">
-      <div class="section-title">👁️ Stalker Detection Engine</div>
-      <div class="section-desc">Tracks behavioral signals across platforms to identify suspicious patterns before escalation</div>
-    </div>
-
-    <div class="grid-3 mb-20">
-      <div class="stat-card pink">
-        <div class="stat-label">Accounts Tracked</div>
-        <div class="stat-value pink">156</div>
-        <div class="stat-change">Real-time monitoring</div>
-      </div>
-      <div class="stat-card warn">
-        <div class="stat-label">Flagged Today</div>
-        <div class="stat-value warn">7</div>
-        <div class="stat-change">Anomalous behavior</div>
-      </div>
-      <div class="stat-card purple">
-        <div class="stat-label">Patterns Found</div>
-        <div class="stat-value purple">23</div>
-        <div class="stat-change">Last 7 days</div>
-      </div>
-    </div>
-
-    <div class="card mb-20">
-      <div class="card-title">🚩 Monitored Accounts · Risk Breakdown</div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Account</th>
-              <th>Msg Frequency</th>
-              <th>Profile Views</th>
-              <th>Multi-Account</th>
-              <th>Night Activity</th>
-              <th>Risk Level</th>
-              <th>Score</th>
-              <th>Action</th>
-            </tr>
-          </thead>
+          <div class="cl">📁 Your Recent Checks</div>
+          <table><thead><tr><th>File</th><th>Result</th><th>Confidence</th><th>When</th></tr></thead>
           <tbody>
-            <tr>
-              <td><div class="user-cell"><div class="user-avatar-sm bg-pink">S</div>@shadow_x99</div></td>
-              <td><span style="color:var(--danger)">⚠️ 47/day</span></td>
-              <td><span style="color:var(--danger)">⚠️ 31x</span></td>
-              <td><span style="color:var(--danger)">⚠️ 3 linked</span></td>
-              <td><span style="color:var(--danger)">⚠️ Yes</span></td>
-              <td><span class="tag tag-high">HIGH</span></td>
-              <td><strong style="color:var(--danger)">91</strong>/100</td>
-              <td><button class="btn btn-danger btn-sm" onclick="showToast('🚫 @shadow_x99 auto-blocked and reported', 'danger')">Block</button></td>
-            </tr>
-            <tr>
-              <td><div class="user-cell"><div class="user-avatar-sm bg-orange">A</div>@anon_user441</div></td>
-              <td><span style="color:var(--warn)">⚡ 18/2h</span></td>
-              <td><span style="color:var(--warn)">⚡ 12x</span></td>
-              <td>None</td>
-              <td><span style="color:var(--warn)">⚡ Partial</span></td>
-              <td><span class="tag tag-medium">MEDIUM</span></td>
-              <td><strong style="color:var(--warn)">74</strong>/100</td>
-              <td><button class="btn btn-outline btn-sm" onclick="showToast('👁️ @anon_user441 moved to watchlist', 'warn')">Watch</button></td>
-            </tr>
-            <tr>
-              <td><div class="user-cell"><div class="user-avatar-sm bg-purple">X</div>@xuser_tmp12</div></td>
-              <td>Normal</td>
-              <td><span style="color:var(--warn)">⚡ 8x</span></td>
-              <td><span style="color:var(--warn)">⚡ 1 possible</span></td>
-              <td>No</td>
-              <td><span class="tag tag-medium">MEDIUM</span></td>
-              <td><strong style="color:var(--warn)">58</strong>/100</td>
-              <td><button class="btn btn-outline btn-sm">Monitor</button></td>
-            </tr>
-            <tr>
-              <td><div class="user-cell"><div class="user-avatar-sm bg-blue">N</div>@new_acc_2024</div></td>
-              <td>Normal</td>
-              <td>3x</td>
-              <td>None</td>
-              <td>No</td>
-              <td><span class="tag tag-low">LOW</span></td>
-              <td><strong style="color:var(--accent3)">22</strong>/100</td>
-              <td><button class="btn btn-outline btn-sm">View</button></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">📡 Behavioral Signals Tracked</div>
-        <div style="margin-bottom:14px">
-          <div class="flex justify-between mb-12">
-            <span class="f-13">Message Frequency Anomaly</span>
-            <span class="f-13 fw-600" style="color:var(--danger)">Critical</span>
-          </div>
-          <div class="progress-bar-wrap"><div class="progress-bar pb-red" style="width:91%"></div></div>
+            <tr><td>profile_img_01.jpg</td><td><span class="tag tag-fk">Fake ⚠️</span></td><td style="color:#d14b4b;font-weight:700">92%</td><td class="muted f12">2 hrs ago</td></tr>
+            <tr><td>video_clip_x.mp4</td><td><span class="tag tag-fk">Fake ⚠️</span></td><td style="color:#d14b4b;font-weight:700">88%</td><td class="muted f12">1 day ago</td></tr>
+            <tr><td>screenshot_2024.png</td><td><span class="tag tag-rl">Real ✅</span></td><td style="color:var(--sage);font-weight:700">3%</td><td class="muted f12">2 days ago</td></tr>
+            <tr><td>photo_send.jpg</td><td><span class="tag tag-rl">Real ✅</span></td><td style="color:var(--sage);font-weight:700">7%</td><td class="muted f12">3 days ago</td></tr>
+            <tr><td>story_frame.png</td><td><span class="tag tag-fk">Fake ⚠️</span></td><td style="color:#d14b4b;font-weight:700">79%</td><td class="muted f12">5 days ago</td></tr>
+          </tbody></table>
         </div>
-        <div style="margin-bottom:14px">
-          <div class="flex justify-between mb-12">
-            <span class="f-13">Repeat Profile Visits</span>
-            <span class="f-13 fw-600" style="color:var(--danger)">High</span>
-          </div>
-          <div class="progress-bar-wrap"><div class="progress-bar pb-pink" style="width:78%"></div></div>
-        </div>
-        <div style="margin-bottom:14px">
-          <div class="flex justify-between mb-12">
-            <span class="f-13">Multi-Account Patterns</span>
-            <span class="f-13 fw-600" style="color:var(--warn)">Medium</span>
-          </div>
-          <div class="progress-bar-wrap"><div class="progress-bar pb-warn" style="width:62%"></div></div>
-        </div>
-        <div style="margin-bottom:14px">
-          <div class="flex justify-between mb-12">
-            <span class="f-13">Off-Hours Activity Spikes</span>
-            <span class="f-13 fw-600" style="color:var(--warn)">Elevated</span>
-          </div>
-          <div class="progress-bar-wrap"><div class="progress-bar pb-warn" style="width:55%"></div></div>
-        </div>
-        <div style="margin-bottom:14px">
-          <div class="flex justify-between mb-12">
-            <span class="f-13">Content Similarity Score</span>
-            <span class="f-13 fw-600" style="color:var(--accent3)">Normal</span>
-          </div>
-          <div class="progress-bar-wrap"><div class="progress-bar pb-green" style="width:28%"></div></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🕐 Activity Pattern · @shadow_x99</div>
-        <p class="f-12 muted mb-12">Hourly activity distribution (spikes indicate anomalous behavior)</p>
-        <div id="stalker-chart" style="display:flex;align-items:flex-end;gap:3px;height:80px;margin-bottom:8px"></div>
-        <div class="flex justify-between" style="font-size:10px;color:var(--muted)">
-          <span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span>
-        </div>
-        <div class="alert-item critical mt-16">
-          <div class="alert-icon">🔴</div>
-          <div class="alert-content">
-            <div class="alert-title">Peak activity: 1:00 AM – 3:00 AM</div>
-            <div class="alert-desc">Consistent late-night harassment pattern detected over 7 days</div>
+        <div class="card" style="background:var(--rose-bg);border-color:var(--rose-pale)">
+          <div class="cl">💡 How This Works</div>
+          <div class="tl" style="padding-left:20px">
+            <div class="tl-i"><div class="tl-dot sg"></div><div class="tl-tx f13">We scan your photo/video using multiple AI models trained to detect fakes</div></div>
+            <div class="tl-i"><div class="tl-dot sg"></div><div class="tl-tx f13">We check for face inconsistencies, lighting errors, and AI generation patterns</div></div>
+            <div class="tl-i"><div class="tl-dot sg"></div><div class="tl-tx f13">If it's fake, we save evidence automatically — so you're ready to take action</div></div>
+            <div class="tl-i"><div class="tl-dot sg"></div><div class="tl-tx f13">We try to trace the likely source account to connect the dots for you</div></div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ====== RISK SCORES PAGE ====== -->
-  <div class="page" id="page-risk">
-    <div class="section-header">
-      <div class="section-title">📈 Harassment Risk Score</div>
-      <div class="section-desc">AI-computed risk score for each flagged account — explainable, data-driven, and actionable</div>
+  <!-- WHO'S WATCHING -->
+  <div class="page" id="pg-watch">
+    <div class="g3 mb-20">
+      <div class="scard" data-em="👀"><div class="chip chip-r">Monitored</div><div class="snum r-num">156</div><div class="sdesc">Accounts we're watching for you</div></div>
+      <div class="scard" data-em="⚠️"><div class="chip chip-a">Flagged Today</div><div class="snum a-num">7</div><div class="sdesc">Unusual behavior spotted</div></div>
+      <div class="scard" data-em="🔍"><div class="chip chip-m">Patterns Found</div><div class="snum m-num">23</div><div class="sdesc">Suspicious patterns this week</div></div>
     </div>
-
-    <div class="grid-3 mb-20">
-      <div class="card" style="border-color:rgba(239,68,68,0.3)">
-        <div class="risk-ring-wrap">
-          <div class="risk-ring">
-            <svg width="160" height="160" viewBox="0 0 160 160">
-              <circle cx="80" cy="80" r="65" fill="none" stroke="rgba(239,68,68,0.1)" stroke-width="12"/>
-              <circle cx="80" cy="80" r="65" fill="none" stroke="var(--danger)" stroke-width="12"
-                stroke-dasharray="408" stroke-dashoffset="37" stroke-linecap="round"/>
-            </svg>
-            <div class="risk-ring-label">
-              <div class="risk-score-num" style="color:var(--danger)">91</div>
-              <div class="risk-score-text">CRITICAL</div>
-            </div>
-          </div>
-          <div style="text-align:center;margin-top:12px">
-            <div class="fw-600">@shadow_x99</div>
-            <div class="f-12 muted">Deepfake + Stalking + Linked</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="border-color:rgba(245,158,11,0.3)">
-        <div class="risk-ring-wrap">
-          <div class="risk-ring">
-            <svg width="160" height="160" viewBox="0 0 160 160">
-              <circle cx="80" cy="80" r="65" fill="none" stroke="rgba(245,158,11,0.1)" stroke-width="12"/>
-              <circle cx="80" cy="80" r="65" fill="none" stroke="var(--warn)" stroke-width="12"
-                stroke-dasharray="408" stroke-dashoffset="105" stroke-linecap="round"/>
-            </svg>
-            <div class="risk-ring-label">
-              <div class="risk-score-num" style="color:var(--warn)">74</div>
-              <div class="risk-score-text">HIGH</div>
-            </div>
-          </div>
-          <div style="text-align:center;margin-top:12px">
-            <div class="fw-600">@anon_user441</div>
-            <div class="f-12 muted">Msg Frequency + Night Activity</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="border-color:rgba(6,214,160,0.3)">
-        <div class="risk-ring-wrap">
-          <div class="risk-ring">
-            <svg width="160" height="160" viewBox="0 0 160 160">
-              <circle cx="80" cy="80" r="65" fill="none" stroke="rgba(6,214,160,0.1)" stroke-width="12"/>
-              <circle cx="80" cy="80" r="65" fill="none" stroke="var(--accent3)" stroke-width="12"
-                stroke-dasharray="408" stroke-dashoffset="317" stroke-linecap="round"/>
-            </svg>
-            <div class="risk-ring-label">
-              <div class="risk-score-num" style="color:var(--accent3)">22</div>
-              <div class="risk-score-text">LOW</div>
-            </div>
-          </div>
-          <div style="text-align:center;margin-top:12px">
-            <div class="fw-600">@new_acc_2024</div>
-            <div class="f-12 muted">Minimal behavioral signals</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="card mb-20">
-      <div class="card-title">🧮 Score Calculator — Add New Account</div>
-      <div class="grid-2">
-        <div>
-          <div class="input-group">
-            <label class="input-label">Account Username</label>
-            <input class="input-field" type="text" placeholder="@username" id="calc-username">
-          </div>
-          <div class="input-group">
-            <label class="input-label">Messages per day: <span id="msg-val">10</span></label>
-            <input type="range" min="0" max="100" value="10" oninput="updateCalc('msg', this.value)" id="msg-slider">
-          </div>
-          <div class="input-group">
-            <label class="input-label">Profile views (past week): <span id="views-val">3</span></label>
-            <input type="range" min="0" max="50" value="3" oninput="updateCalc('views', this.value)" id="views-slider">
-          </div>
-          <div class="input-group">
-            <label class="input-label">Linked accounts found: <span id="linked-val">0</span></label>
-            <input type="range" min="0" max="10" value="0" oninput="updateCalc('linked', this.value)" id="linked-slider">
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
-          <div style="text-align:center">
-            <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Computed Risk Score</div>
-            <div id="calc-score" class="syne" style="font-size:72px;color:var(--accent3)">18</div>
-            <div id="calc-label" class="tag tag-low" style="margin-top:4px">LOW RISK</div>
-          </div>
-          <button class="btn btn-primary" onclick="addToMonitor()">➕ Add to Monitoring</button>
-        </div>
+      <div class="cl">🚩 People We're Watching Closely</div>
+      <p class="f13 ink2 mb-16">These accounts have shown unusual behavior. We explain what they did so you can decide what to do.</p>
+      <table><thead><tr><th>Account</th><th>What They Did</th><th>Risk Level</th><th>Score</th><th>Your Action</th></tr></thead>
+      <tbody>
+        <tr><td><div class="uc"><div class="av av-r">S</div><div><div class="fw7">@shadow_x99</div><div class="f12 muted">Joined Mar 2023</div></div></div></td><td class="f13">Sent 47 msgs/day · Viewed profile 31 times · Has 3 alt accounts · Active at 2 AM</td><td><span class="tag tag-h">🔴 Dangerous</span></td><td><strong style="color:#d14b4b;font-size:15px">91</strong><span class="muted f12">/100</span></td><td><button class="btn btn-danger btn-sm" onclick="toast('🚫 @shadow_x99 blocked. They can no longer reach you.','danger')">Block Now</button></td></tr>
+        <tr><td><div class="uc"><div class="av av-a">A</div><div><div class="fw7">@anon_user441</div><div class="f12 muted">Joined Jan 2024</div></div></div></td><td class="f13">18 messages in 2 hours · Viewed you 12 times · Some late-night activity</td><td><span class="tag tag-m">🟡 Concerning</span></td><td><strong style="color:var(--amber);font-size:15px">74</strong><span class="muted f12">/100</span></td><td><button class="btn btn-soft btn-sm" onclick="toast('👁️ @anon_user441 added to watchlist. We\'ll alert you of changes.','warn')">Keep Watching</button></td></tr>
+        <tr><td><div class="uc"><div class="av av-m">X</div><div><div class="fw7">@xuser_tmp12</div><div class="f12 muted">Joined Feb 2024</div></div></div></td><td class="f13">Viewed your profile 8 times · Possibly has 1 alt account</td><td><span class="tag tag-m">🟡 Watch</span></td><td><strong style="color:var(--amber);font-size:15px">58</strong><span class="muted f12">/100</span></td><td><button class="btn btn-outline btn-sm">Monitor</button></td></tr>
+        <tr><td><div class="uc"><div class="av av-s">N</div><div><div class="fw7">@new_acc_2024</div><div class="f12 muted">Joined Mar 2024</div></div></div></td><td class="f13">Viewed profile 3 times — nothing alarming yet</td><td><span class="tag tag-l">🟢 Safe</span></td><td><strong style="color:var(--sage);font-size:15px">22</strong><span class="muted f12">/100</span></td><td><button class="btn btn-outline btn-sm">View</button></td></tr>
+      </tbody></table>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="cl">📡 Warning Signs We Track</div>
+        <p class="f12 muted mb-16">These behaviors raise an account's risk score</p>
+        <div style="margin-bottom:13px"><div class="flex jb mb-12 f13"><span>💬 Too many messages</span><span class="fw7" style="color:#d14b4b">Critical</span></div><div class="pw"><div class="pb pb-d" style="width:91%"></div></div></div>
+        <div style="margin-bottom:13px"><div class="flex jb mb-12 f13"><span>👀 Repeated profile visits</span><span class="fw7" style="color:#d14b4b">High</span></div><div class="pw"><div class="pb pb-r" style="width:78%"></div></div></div>
+        <div style="margin-bottom:13px"><div class="flex jb mb-12 f13"><span>🎭 Multiple fake accounts</span><span class="fw7" style="color:var(--amber)">Medium</span></div><div class="pw"><div class="pb pb-a" style="width:62%"></div></div></div>
+        <div style="margin-bottom:13px"><div class="flex jb mb-12 f13"><span>🌙 Late night harassment</span><span class="fw7" style="color:var(--amber)">Elevated</span></div><div class="pw"><div class="pb pb-a" style="width:55%"></div></div></div>
+        <div><div class="flex jb mb-12 f13"><span>✍️ Threatening language</span><span class="fw7" style="color:var(--sage)">Normal</span></div><div class="pw"><div class="pb pb-s" style="width:28%"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="cl">🌙 @shadow_x99 — When They're Active</div>
+        <p class="f12 muted mb-16">Pink bars = active hours. Late night spikes are a red flag.</p>
+        <div id="schart" class="bc" style="height:76px;margin-bottom:8px"></div>
+        <div class="flex jb" style="font-size:10px;color:var(--muted);font-weight:700"><span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>12am</span></div>
+        <div class="ac crit mt-16"><div class="ae">🌙</div><div class="ab"><div class="at">Most active 1 AM – 3 AM</div><div class="ad">This has repeated for 7 nights in a row — a strong sign of targeted harassment</div></div></div>
       </div>
     </div>
   </div>
 
-  <!-- ====== ACCOUNT LINKING ====== -->
-  <div class="page" id="page-linking">
-    <div class="section-header">
-      <div class="section-title">🔗 Suspicious Account Linking</div>
-      <div class="section-desc">Identifies probable source connections using behavior similarity, timing correlation & interaction overlap</div>
+  <!-- THREAT SCORES -->
+  <div class="page" id="pg-scores">
+    <div style="background:var(--rose-bg);border:2px solid var(--rose-pale);border-radius:18px;padding:18px 22px;margin-bottom:22px">
+      <div class="playfair fw7" style="font-size:16px;color:var(--ink);margin-bottom:5px">What is a Threat Score?</div>
+      <div class="f13 ink2" style="line-height:1.7">Every suspicious account gets a score from 0–100. <strong>Higher means more dangerous.</strong> The score is based on how often they message you, how many times they viewed your profile, whether they have fake accounts, and other behavioral signals — so you understand <em>how worried to be</em> at a glance.</div>
     </div>
-
-    <div class="card mb-20" style="border-color:rgba(124,58,237,0.3)">
-      <div class="card-title">🕸️ Account Relationship Graph · Primary Threat Cluster</div>
-      <p class="f-12 muted mb-12">Nodes represent accounts. Color indicates role: <span style="color:var(--accent)">victim</span> · <span style="color:var(--danger)">primary suspect</span> · <span style="color:var(--warn)">linked accounts</span></p>
-      <div class="graph-canvas" id="graph-canvas" style="height:240px">
-        <!-- Drawn by JS -->
+    <div class="g3 mb-20">
+      <div class="card" style="border-color:#ffc5c5">
+        <div class="ring-wrap">
+          <div class="ring"><svg width="144" height="144" viewBox="0 0 144 144"><circle cx="72" cy="72" r="58" fill="none" stroke="#ffeaea" stroke-width="11"/><circle cx="72" cy="72" r="58" fill="none" stroke="#d14b4b" stroke-width="11" stroke-dasharray="364" stroke-dashoffset="33" stroke-linecap="round"/></svg>
+          <div class="ring-lbl"><div class="rnum" style="color:#d14b4b">91</div><div class="rwrd" style="color:#d14b4b">Danger</div></div></div>
+          <div style="text-align:center;margin-top:11px"><div class="fw7 f14">@shadow_x99</div><div class="f12 muted mt-16">Deepfakes + Stalking + 3 alt accounts</div></div>
+        </div>
+        <button class="btn btn-danger" style="width:100%;justify-content:center;margin-top:7px" onclick="toast('🚫 @shadow_x99 permanently blocked and reported','danger')">Block &amp; Report</button>
       </div>
-      <div class="flex gap-12 mt-16">
-        <div class="flex items-center gap-8"><div style="width:12px;height:12px;border-radius:50%;background:var(--accent)"></div><span class="f-12">You (Victim)</span></div>
-        <div class="flex items-center gap-8"><div style="width:12px;height:12px;border-radius:50%;background:var(--danger)"></div><span class="f-12">Primary Suspect</span></div>
-        <div class="flex items-center gap-8"><div style="width:12px;height:12px;border-radius:50%;background:var(--warn)"></div><span class="f-12">Linked / Alt Accounts</span></div>
+      <div class="card" style="border-color:#f5d9bb">
+        <div class="ring-wrap">
+          <div class="ring"><svg width="144" height="144" viewBox="0 0 144 144"><circle cx="72" cy="72" r="58" fill="none" stroke="var(--amber-pale)" stroke-width="11"/><circle cx="72" cy="72" r="58" fill="none" stroke="var(--amber)" stroke-width="11" stroke-dasharray="364" stroke-dashoffset="93" stroke-linecap="round"/></svg>
+          <div class="ring-lbl"><div class="rnum" style="color:var(--amber)">74</div><div class="rwrd" style="color:var(--amber)">Concern</div></div></div>
+          <div style="text-align:center;margin-top:11px"><div class="fw7 f14">@anon_user441</div><div class="f12 muted mt-16">Excessive messages + late night</div></div>
+        </div>
+        <button class="btn btn-soft" style="width:100%;justify-content:center;margin-top:7px" onclick="toast('👁️ @anon_user441 is being closely monitored','warn')">Keep Watching</button>
       </div>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">🔍 Linking Evidence · @shadow_x99 Cluster</div>
-        <div class="alert-item">
-          <div class="alert-icon">📱</div>
-          <div class="alert-content">
-            <div class="alert-title">Device Fingerprint Match</div>
-            <div class="alert-desc">@shadow_x99 and @usr_tmp1 share identical device/browser fingerprint (98% match)</div>
-          </div>
-          <span class="tag tag-linked">STRONG</span>
+      <div class="card" style="border-color:rgba(106,158,127,.3)">
+        <div class="ring-wrap">
+          <div class="ring"><svg width="144" height="144" viewBox="0 0 144 144"><circle cx="72" cy="72" r="58" fill="none" stroke="var(--sage-pale)" stroke-width="11"/><circle cx="72" cy="72" r="58" fill="none" stroke="var(--sage)" stroke-width="11" stroke-dasharray="364" stroke-dashoffset="284" stroke-linecap="round"/></svg>
+          <div class="ring-lbl"><div class="rnum" style="color:var(--sage)">22</div><div class="rwrd" style="color:var(--sage)">Safe</div></div></div>
+          <div style="text-align:center;margin-top:11px"><div class="fw7 f14">@new_acc_2024</div><div class="f12 muted mt-16">Very little activity — no red flags</div></div>
         </div>
-        <div class="alert-item">
-          <div class="alert-icon">⏰</div>
-          <div class="alert-content">
-            <div class="alert-title">Timing Correlation</div>
-            <div class="alert-desc">Activity windows perfectly correlated — both active/inactive within 2 minutes of each other</div>
-          </div>
-          <span class="tag tag-linked">STRONG</span>
-        </div>
-        <div class="alert-item">
-          <div class="alert-icon">✍️</div>
-          <div class="alert-content">
-            <div class="alert-title">Writing Style Analysis</div>
-            <div class="alert-desc">NLP analysis shows 84% style similarity in message phrasing and capitalization patterns</div>
-          </div>
-          <span class="tag tag-suspicious">MEDIUM</span>
-        </div>
-        <div class="alert-item">
-          <div class="alert-icon">📍</div>
-          <div class="alert-content">
-            <div class="alert-title">IP Geolocation Cluster</div>
-            <div class="alert-desc">Both accounts resolve to same ISP subnet with <12hr creation gap</div>
-          </div>
-          <span class="tag tag-suspicious">MEDIUM</span>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📋 Linked Account Registry</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Account</th><th>Similarity</th><th>Created</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr>
-                <td><div class="user-cell"><div class="user-avatar-sm bg-pink">S</div>@shadow_x99</div></td>
-                <td><strong style="color:var(--danger)">PRIMARY</strong></td>
-                <td class="muted f-12">Mar 2023</td>
-                <td><span class="tag tag-high">Blocked</span></td>
-              </tr>
-              <tr>
-                <td><div class="user-cell"><div class="user-avatar-sm bg-orange">U</div>@usr_tmp1</div></td>
-                <td style="color:var(--danger)">98% match</td>
-                <td class="muted f-12">Jan 2024</td>
-                <td><span class="tag tag-high">Blocked</span></td>
-              </tr>
-              <tr>
-                <td><div class="user-cell"><div class="user-avatar-sm bg-purple">D</div>@darkweb_x</div></td>
-                <td style="color:var(--warn)">76% match</td>
-                <td class="muted f-12">Feb 2024</td>
-                <td><span class="tag tag-medium">Watching</span></td>
-              </tr>
-              <tr>
-                <td><div class="user-cell"><div class="user-avatar-sm bg-blue">N</div>@newone_xyz</div></td>
-                <td style="color:var(--warn)">61% match</td>
-                <td class="muted f-12">Mar 2024</td>
-                <td><span class="tag tag-medium">Flagged</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <button class="btn btn-primary mt-16" onclick="showToast('🔗 Cluster report generated — 4 accounts linked to single threat actor', 'warn')">Generate Cluster Report</button>
+        <button class="btn btn-outline" style="width:100%;justify-content:center;margin-top:7px">View Details</button>
       </div>
     </div>
-  </div>
-
-  <!-- ====== AUTO DEFENSE ====== -->
-  <div class="page" id="page-defense">
-    <div class="section-header">
-      <div class="section-title">🛡️ Auto-Defense Mode</div>
-      <div class="section-desc">Configure automated protective responses — move from passive detection to active prevention</div>
-    </div>
-
-    <div class="grid-2 mb-20">
-      <div class="card">
-        <div class="card-title">⚙️ Auto-Response Settings</div>
-        <div class="toggle-wrap">
-          <div class="toggle-info">
-            <div class="toggle-label">Auto-Block High Risk Accounts</div>
-            <div class="toggle-desc">Automatically block accounts scoring ≥80 without confirmation</div>
-          </div>
-          <div class="toggle on" onclick="toggleSwitch(this)"></div>
-        </div>
-        <div class="toggle-wrap">
-          <div class="toggle-info">
-            <div class="toggle-label">Restrict Profile Visibility</div>
-            <div class="toggle-desc">Hide your profile from suspicious/unverified accounts temporarily</div>
-          </div>
-          <div class="toggle on" onclick="toggleSwitch(this)"></div>
-        </div>
-        <div class="toggle-wrap">
-          <div class="toggle-info">
-            <div class="toggle-label">Alert Emergency Contacts</div>
-            <div class="toggle-desc">Send SMS alert to trusted contacts when critical threat detected</div>
-          </div>
-          <div class="toggle on" onclick="toggleSwitch(this)"></div>
-        </div>
-        <div class="toggle-wrap">
-          <div class="toggle-info">
-            <div class="toggle-label">Auto-Save Evidence Bundles</div>
-            <div class="toggle-desc">Automatically capture screenshots, logs, and metadata for legal use</div>
-          </div>
-          <div class="toggle on" onclick="toggleSwitch(this)"></div>
-        </div>
-        <div class="toggle-wrap">
-          <div class="toggle-info">
-            <div class="toggle-label">Cross-Platform Reporting</div>
-            <div class="toggle-desc">Auto-report flagged accounts to Instagram, Twitter, and WhatsApp</div>
-          </div>
-          <div class="toggle" onclick="toggleSwitch(this)"></div>
-        </div>
-        <div class="toggle-wrap" style="border:none">
-          <div class="toggle-info">
-            <div class="toggle-label">Escalate to Cybercrime Portal</div>
-            <div class="toggle-desc">Automatically file with cybercrime.gov.in for score ≥90 accounts</div>
-          </div>
-          <div class="toggle" onclick="toggleSwitch(this)"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📊 Defense Statistics</div>
-        <div class="grid-2" style="gap:12px;margin-bottom:20px">
-          <div style="background:var(--surface2);padding:16px;border-radius:12px;text-align:center">
-            <div class="syne" style="font-size:28px;color:var(--accent)">31</div>
-            <div class="f-12 muted">Auto-Blocks</div>
-          </div>
-          <div style="background:var(--surface2);padding:16px;border-radius:12px;text-align:center">
-            <div class="syne" style="font-size:28px;color:var(--accent3)">8</div>
-            <div class="f-12 muted">Alerts Sent</div>
-          </div>
-          <div style="background:var(--surface2);padding:16px;border-radius:12px;text-align:center">
-            <div class="syne" style="font-size:28px;color:var(--accent2)">5</div>
-            <div class="f-12 muted">Reports Filed</div>
-          </div>
-          <div style="background:var(--surface2);padding:16px;border-radius:12px;text-align:center">
-            <div class="syne" style="font-size:28px;color:var(--warn)">12</div>
-            <div class="f-12 muted">Bundles Saved</div>
-          </div>
-        </div>
-
-        <div class="card-title">👥 Emergency Contacts</div>
-        <div style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px">
-          <div class="user-avatar-sm bg-pink">M</div>
-          <div style="flex:1"><div class="f-13 fw-600">Mom</div><div class="f-12 muted">+91 98xxx xxxxx</div></div>
-          <span class="tag tag-low">Active</span>
-        </div>
-        <div style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px">
-          <div class="user-avatar-sm bg-purple">R</div>
-          <div style="flex:1"><div class="f-13 fw-600">Riya (Friend)</div><div class="f-12 muted">+91 87xxx xxxxx</div></div>
-          <span class="tag tag-low">Active</span>
-        </div>
-        <button class="btn btn-outline btn-sm mt-16" onclick="showToast('✅ Contact added successfully', 'success')">➕ Add Contact</button>
-      </div>
-    </div>
-
     <div class="card">
-      <div class="card-title">🔥 Trigger Manual Defense</div>
-      <div class="grid-3" style="gap:12px">
-        <button class="btn btn-danger" style="justify-content:center;padding:16px" onclick="showToast('🔒 Profile locked — only approved followers can view', 'warn')">
-          🔒 Lock Profile Now
-        </button>
-        <button class="btn btn-primary" style="justify-content:center;padding:16px" onclick="showToast('📱 Emergency alert sent to 2 contacts', 'success')">
-          📱 Send Emergency Alert
-        </button>
-        <button class="btn btn-outline" style="justify-content:center;padding:16px" onclick="showToast('📋 Full incident report being compiled...', 'success')">
-          📋 Generate Full Report
-        </button>
+      <div class="cl">🧮 Check Any Account's Risk Right Now</div>
+      <p class="f13 ink2 mb-16">Enter what you know about someone's behavior — we'll give you an instant score</p>
+      <div class="g2">
+        <div>
+          <div class="inp-g"><label class="inp-l">Account Username</label><input class="inp" type="text" placeholder="@username" id="cu"></div>
+          <div class="inp-g"><label class="inp-l">Messages per day: <strong id="vmsg">10</strong></label><input type="range" min="0" max="100" value="10" oninput="calcS('msg',this.value)"></div>
+          <div class="inp-g"><label class="inp-l">Times they viewed your profile: <strong id="vviews">3</strong></label><input type="range" min="0" max="50" value="3" oninput="calcS('views',this.value)"></div>
+          <div class="inp-g"><label class="inp-l">Number of fake/linked accounts: <strong id="vlinked">0</strong></label><input type="range" min="0" max="10" value="0" oninput="calcS('linked',this.value)"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;padding:18px;background:var(--cream2);border-radius:16px">
+          <div style="font-size:11.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1.5px">Risk Score</div>
+          <div id="cscore" class="playfair" style="font-size:74px;color:var(--sage);line-height:1">18</div>
+          <div id="clabel" class="tag tag-l">Low Risk — probably fine</div>
+          <button class="btn btn-rose" onclick="addW()">➕ Start Watching Them</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ====== LEGAL ACTION KIT ====== -->
-  <div class="page" id="page-legal">
-    <div class="section-header">
-      <div class="section-title">⚖️ Legal Action Kit</div>
-      <div class="section-desc">One-click generation of cyber complaint drafts, evidence bundles, and report-ready documentation</div>
+  <!-- CONNECTED ACCOUNTS -->
+  <div class="page" id="pg-links">
+    <div class="ac info mb-20" style="border-radius:16px">
+      <div class="ae">💡</div>
+      <div class="ab"><div class="at">What does "connected accounts" mean?</div><div class="ad">Sometimes one person harasses you using multiple fake accounts. We look at behavior patterns, timing, writing style, and device data to find accounts probably controlled by the same person — even with different usernames.</div></div>
     </div>
-
-    <div class="grid-2 mb-20">
-      <div class="card">
-        <div class="card-title">📝 Complaint Generator</div>
-        <div class="input-group">
-          <label class="input-label">Your Name</label>
-          <input class="input-field" type="text" placeholder="Full legal name" value="Priya Sharma" id="victim-name">
-        </div>
-        <div class="input-group">
-          <label class="input-label">Incident Type</label>
-          <select class="input-field" id="incident-type">
-            <option>Deepfake Image/Video Harassment</option>
-            <option>Cyberstalking</option>
-            <option>Online Defamation</option>
-            <option>Non-Consensual Intimate Content</option>
-            <option>Coordinated Harassment Campaign</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label class="input-label">Perpetrator Account(s)</label>
-          <input class="input-field" type="text" placeholder="@username, @username2..." value="@shadow_x99, @usr_tmp1" id="perp-accounts">
-        </div>
-        <div class="input-group">
-          <label class="input-label">Brief Description</label>
-          <textarea class="input-field" id="incident-desc" placeholder="Describe the incident...">Repeated deepfake images created and distributed without consent. Multiple accounts linked to the same perpetrator have been harassing me since March 2024. AI analysis confirms 92% deepfake probability and linked account network.</textarea>
-        </div>
-        <button class="btn btn-primary" onclick="generateLegal()">⚖️ Generate Legal Complaint</button>
+    <div class="card mb-20">
+      <div class="cl">🕸️ Account Map — Who's Connected to Who</div>
+      <p class="f13 ink2 mb-16">The <span class="rose fw7">pink node</span> is you. The <span style="color:#d14b4b;font-weight:700">red node</span> is the main suspect. <span style="color:var(--amber);font-weight:700">Orange nodes</span> are likely the same person.</p>
+      <div class="graph-area" id="garea" style="height:230px"></div>
+      <div class="flex gap-12 mt-16" style="flex-wrap:wrap">
+        <div class="flex ic gap-10"><div style="width:11px;height:11px;border-radius:50%;background:var(--rose)"></div><span class="f12 fw7">You</span></div>
+        <div class="flex ic gap-10"><div style="width:11px;height:11px;border-radius:50%;background:#d14b4b"></div><span class="f12 fw7">Main Suspect</span></div>
+        <div class="flex ic gap-10"><div style="width:11px;height:11px;border-radius:50%;background:var(--amber)"></div><span class="f12 fw7">Linked Alt Accounts</span></div>
       </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="cl">🔍 Why We Think They're Connected</div>
+        <div class="ac"><div class="ae">📱</div><div class="ab"><div class="at">Same device fingerprint</div><div class="ad">@shadow_x99 and @usr_tmp1 are being used from the same phone/browser — 98% match</div></div><span class="tag tag-h">Very likely</span></div>
+        <div class="ac"><div class="ae">⏰</div><div class="ab"><div class="at">Same online/offline times</div><div class="ad">Both accounts go online and offline within 2 minutes of each other, every single time</div></div><span class="tag tag-h">Very likely</span></div>
+        <div class="ac"><div class="ae">✍️</div><div class="ab"><div class="at">Similar writing style</div><div class="ad">Punctuation, capitalization, phrases — 84% similarity in how they write</div></div><span class="tag tag-m">Likely</span></div>
+        <div class="ac"><div class="ae">📍</div><div class="ab"><div class="at">Same internet provider area</div><div class="ad">Both accounts were created within 12 hours from the same internet area</div></div><span class="tag tag-m">Likely</span></div>
+      </div>
+      <div class="card">
+        <div class="cl">📋 All Connected Accounts</div>
+        <table><thead><tr><th>Account</th><th>Similarity</th><th>Created</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><div class="uc"><div class="av av-r">S</div><strong>@shadow_x99</strong></div></td><td style="color:#d14b4b;font-weight:700">MAIN</td><td class="muted f12">Mar 2023</td><td><span class="tag tag-h">Blocked</span></td></tr>
+          <tr><td><div class="uc"><div class="av av-a">U</div>@usr_tmp1</div></td><td style="color:#d14b4b;font-weight:700">98%</td><td class="muted f12">Jan 2024</td><td><span class="tag tag-h">Blocked</span></td></tr>
+          <tr><td><div class="uc"><div class="av av-m">D</div>@darkweb_x</div></td><td style="color:var(--amber);font-weight:700">76%</td><td class="muted f12">Feb 2024</td><td><span class="tag tag-m">Watching</span></td></tr>
+          <tr><td><div class="uc"><div class="av av-s">N</div>@newone_xyz</div></td><td style="color:var(--amber);font-weight:700">61%</td><td class="muted f12">Mar 2024</td><td><span class="tag tag-m">Flagged</span></td></tr>
+        </tbody></table>
+        <button class="btn btn-rose mt-16" onclick="toast('📋 Report generated — 4 accounts linked to 1 person. Saved to evidence folder.','warn')">📋 Generate Report</button>
+      </div>
+    </div>
+  </div>
 
+  <!-- SHIELD SETTINGS -->
+  <div class="page" id="pg-shield">
+    <div class="g2 mb-20">
+      <div class="card">
+        <div class="cl">⚙️ Automatic Protections</div>
+        <p class="f13 ink2 mb-16">These settings let HerSaathi act automatically to protect you — even when you're offline</p>
+        <div class="tog-row"><div class="tog-txt"><div class="tog-name">🚫 Auto-block dangerous accounts</div><div class="tog-hint">Accounts scoring 80+ get blocked before they can reach you</div></div><button class="tog-pill on" onclick="flipTog(this)"></button></div>
+        <div class="tog-row"><div class="tog-txt"><div class="tog-name">🔒 Hide my profile from strangers</div><div class="tog-hint">Suspicious accounts won't see your profile photos or posts</div></div><button class="tog-pill on" onclick="flipTog(this)"></button></div>
+        <div class="tog-row"><div class="tog-txt"><div class="tog-name">📱 Alert my trusted contacts</div><div class="tog-hint">If something serious happens, your emergency contacts get an SMS right away</div></div><button class="tog-pill on" onclick="flipTog(this)"></button></div>
+        <div class="tog-row"><div class="tog-txt"><div class="tog-name">📸 Save evidence automatically</div><div class="tog-hint">Screenshots and messages are saved before they can be deleted</div></div><button class="tog-pill on" onclick="flipTog(this)"></button></div>
+        <div class="tog-row"><div class="tog-txt"><div class="tog-name">📣 Report to social platforms</div><div class="tog-hint">Auto-report flagged accounts to Instagram, Twitter, WhatsApp</div></div><button class="tog-pill" onclick="flipTog(this)"></button></div>
+        <div class="tog-row"><div class="tog-txt"><div class="tog-name">🏛️ Escalate to cybercrime portal</div><div class="tog-hint">Auto-file to cybercrime.gov.in for extreme cases (score 90+)</div></div><button class="tog-pill" onclick="flipTog(this)"></button></div>
+      </div>
       <div>
         <div class="card mb-20">
-          <div class="card-title">📦 Evidence Bundle</div>
-          <div class="alert-item">
-            <div class="alert-icon">🖼️</div>
-            <div class="alert-content">
-              <div class="alert-title">Deepfake Detection Reports (3 files)</div>
-              <div class="alert-desc">AI analysis output with confidence scores + metadata</div>
-            </div>
-            <span class="tag tag-low">Ready</span>
-          </div>
-          <div class="alert-item">
-            <div class="alert-icon">📊</div>
-            <div class="alert-content">
-              <div class="alert-title">Behavior Analysis Logs (47 entries)</div>
-              <div class="alert-desc">Timestamped message frequency, view counts, pattern data</div>
-            </div>
-            <span class="tag tag-low">Ready</span>
-          </div>
-          <div class="alert-item">
-            <div class="alert-icon">🔗</div>
-            <div class="alert-content">
-              <div class="alert-title">Account Linking Report</div>
-              <div class="alert-desc">Graph analysis showing 4 accounts tied to single threat actor</div>
-            </div>
-            <span class="tag tag-low">Ready</span>
-          </div>
-          <div class="alert-item">
-            <div class="alert-icon">📸</div>
-            <div class="alert-content">
-              <div class="alert-title">Screenshots Archive (23 items)</div>
-              <div class="alert-desc">Auto-captured evidence with GPS timestamps</div>
-            </div>
-            <span class="tag tag-low">Ready</span>
-          </div>
-          <button class="btn btn-outline mt-16 btn-sm" onclick="showToast('📦 Evidence bundle downloaded (ZIP, 18.4MB)', 'success')">⬇️ Download Full Bundle (.zip)</button>
+          <div class="cl">👩‍👩‍👧 My Trusted Contacts</div>
+          <p class="f12 muted mb-16">They'll get an alert if HerSaathi detects a serious threat</p>
+          <div style="display:flex;align-items:center;gap:10px;background:var(--cream2);border-radius:12px;padding:12px 14px;margin-bottom:7px"><div class="av av-r">M</div><div style="flex:1"><div class="f14 fw7">Mom</div><div class="f12 muted">+91 98xxx xxxxx</div></div><span class="tag tag-l">Active</span></div>
+          <div style="display:flex;align-items:center;gap:10px;background:var(--cream2);border-radius:12px;padding:12px 14px;margin-bottom:7px"><div class="av av-m">R</div><div style="flex:1"><div class="f14 fw7">Riya — Best Friend</div><div class="f12 muted">+91 87xxx xxxxx</div></div><span class="tag tag-l">Active</span></div>
+          <button class="btn btn-soft btn-sm mt-16" onclick="toast('✅ Contact saved!','success')">➕ Add a Trusted Person</button>
         </div>
-
-        <div class="card">
-          <div class="card-title">🏛️ File Online</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <button class="btn btn-outline" style="justify-content:flex-start" onclick="showToast('🌐 Opening cybercrime.gov.in portal...', 'success')">
-              🇮🇳 National Cybercrime Reporting Portal
-            </button>
-            <button class="btn btn-outline" style="justify-content:flex-start" onclick="showToast('📧 Report sent to platform safety team', 'success')">
-              📱 Report to Platform (Instagram/Twitter)
-            </button>
-            <button class="btn btn-outline" style="justify-content:flex-start" onclick="showToast('📋 Complaint ready for local police station', 'success')">
-              👮 Local Police e-FIR Template
-            </button>
+        <div class="card" style="background:var(--sage-pale);border-color:rgba(106,158,127,.3)">
+          <div class="cl" style="color:var(--sage)">📊 What We've Done for You</div>
+          <div class="g2" style="gap:9px">
+            <div style="background:white;border-radius:12px;padding:13px;text-align:center"><div class="playfair" style="font-size:26px;color:var(--rose)">31</div><div class="f12 muted">Blocked</div></div>
+            <div style="background:white;border-radius:12px;padding:13px;text-align:center"><div class="playfair" style="font-size:26px;color:var(--sage)">8</div><div class="f12 muted">Alerts Sent</div></div>
+            <div style="background:white;border-radius:12px;padding:13px;text-align:center"><div class="playfair" style="font-size:26px;color:var(--mauve)">5</div><div class="f12 muted">Reported</div></div>
+            <div style="background:white;border-radius:12px;padding:13px;text-align:center"><div class="playfair" style="font-size:26px;color:var(--amber)">12</div><div class="f12 muted">Evidence Sets</div></div>
           </div>
         </div>
       </div>
     </div>
-
-    <div class="legal-doc" id="legal-doc">
-      <h3>CYBER COMPLAINT DRAFT — CONFIDENTIAL</h3>
-      <p>To,<br>The Station House Officer / Cybercrime Cell<br>[Jurisdiction Police Station]</p>
-      <p><strong>Subject:</strong> Complaint regarding Deepfake Image/Video Harassment under IT Act Section 66E, 67A and IPC Section 509</p>
-      <p>I, <strong id="doc-name">Priya Sharma</strong>, hereby submit this complaint against the perpetrator(s) identified as <strong id="doc-perps">@shadow_x99, @usr_tmp1</strong> operating on social media platforms.</p>
-      <p><strong>Nature of Offence:</strong> <span id="doc-type">Deepfake Image/Video Harassment</span></p>
-      <p><strong>Incident Details:</strong> <span id="doc-desc">Repeated deepfake images created and distributed without consent. Multiple accounts linked to the same perpetrator have been harassing me since March 2024. AI analysis confirms 92% deepfake probability and linked account network.</span></p>
-      <p><strong>AI-Verified Evidence:</strong> SHEild AI system has flagged the accused accounts with a Harassment Risk Score of 91/100. Deepfake analysis shows 92% confidence of content manipulation. Account linking analysis confirms 4 accounts tied to a single threat actor with 98% behavioral similarity.</p>
-      <p><strong>Relief Sought:</strong> Immediate investigation, identification of perpetrators, takedown of manipulated content, and action under applicable provisions of IT Act 2000 and IPC.</p>
-      <p>I declare that the information given above is true and correct to the best of my knowledge.</p>
-      <p><strong>Date:</strong> March 17, 2026 &nbsp;&nbsp; <strong>Signature:</strong> Priya Sharma</p>
+    <div class="card">
+      <div class="cl">🆘 Emergency Actions — Use These Anytime</div>
+      <div class="g3" style="gap:10px">
+        <button class="btn btn-danger" style="justify-content:center;padding:16px;flex-direction:column;gap:5px;height:auto" onclick="toast('🔒 Profile locked. Only approved followers can see it now.','warn')"><span style="font-size:22px">🔒</span><span>Lock My Profile</span><span style="font-size:11px;font-weight:500;opacity:.8">Hides you from strangers</span></button>
+        <button class="btn btn-rose" style="justify-content:center;padding:16px;flex-direction:column;gap:5px;height:auto" onclick="toast('📱 Emergency alert sent to Mom and Riya right now!','success')"><span style="font-size:22px">📱</span><span>Alert My People</span><span style="font-size:11px;font-weight:500;opacity:.75">SMS your trusted contacts</span></button>
+        <button class="btn btn-sage" style="justify-content:center;padding:16px;flex-direction:column;gap:5px;height:auto" onclick="toast('📋 Full incident report is being prepared — ready in 30 seconds','success')"><span style="font-size:22px">📋</span><span>Save Everything</span><span style="font-size:11px;font-weight:500;opacity:.8">Bundle all evidence now</span></button>
+      </div>
     </div>
   </div>
 
+  <!-- FILE A COMPLAINT -->
+  <div class="page" id="pg-report">
+    <div class="ac info mb-20" style="border-radius:16px">
+      <div class="ae">💜</div>
+      <div class="ab"><div class="at">You don't have to go through this alone</div><div class="ad">HerSaathi will fill out most of this for you — we've already collected your evidence. Just confirm the details and hit "Generate My Complaint". It takes less than a minute.</div></div>
+    </div>
+    <div class="g2 mb-20">
+      <div class="card">
+        <div class="cl">📝 Your Complaint Details</div>
+        <div class="inp-g"><label class="inp-l">Your Name</label><input class="inp" type="text" value="Priya Sharma" id="ln"></div>
+        <div class="inp-g"><label class="inp-l">What type of harassment is this?</label><select class="inp" id="lt"><option>Deepfake Photo/Video Without My Consent</option><option>Cyberstalking</option><option>Online Defamation</option><option>Non-Consensual Intimate Imagery</option><option>Coordinated Harassment Campaign</option></select></div>
+        <div class="inp-g"><label class="inp-l">Who is doing this?</label><input class="inp" type="text" value="@shadow_x99, @usr_tmp1" id="lp"></div>
+        <div class="inp-g"><label class="inp-l">In your own words, what happened?</label><textarea class="inp" id="ld">Someone has been creating and sharing fake photos of me without my consent. Multiple accounts are being used by what appears to be the same person. This has caused me significant distress and fear for my safety. HerSaathi's AI confirmed 92% probability of deepfake manipulation.</textarea></div>
+        <button class="btn btn-rose" onclick="makeLegal()">✍️ Generate My Complaint</button>
+      </div>
+      <div>
+        <div class="card mb-20">
+          <div class="cl">📦 Your Evidence — Ready to Submit</div>
+          <p class="f12 muted mb-16">We've collected all of this automatically for you</p>
+          <div class="ac"><div class="ae">🖼️</div><div class="ab"><div class="at">AI Detection Reports (3 files)</div><div class="ad">Deepfake analysis with full confidence scores</div></div><span class="tag tag-l">Ready</span></div>
+          <div class="ac"><div class="ae">📊</div><div class="ab"><div class="at">Behavior Logs (47 entries)</div><div class="ad">Timestamped record of every suspicious action</div></div><span class="tag tag-l">Ready</span></div>
+          <div class="ac"><div class="ae">🔗</div><div class="ab"><div class="at">Linked Accounts Report</div><div class="ad">Proof that 4 accounts are controlled by 1 person</div></div><span class="tag tag-l">Ready</span></div>
+          <div class="ac"><div class="ae">📸</div><div class="ab"><div class="at">Screenshots (23 photos)</div><div class="ad">Auto-saved with date, time, and location stamps</div></div><span class="tag tag-l">Ready</span></div>
+          <button class="btn btn-soft btn-sm mt-16" onclick="toast('📦 Evidence bundle downloaded (18.4 MB)','success')">⬇️ Download All Evidence</button>
+        </div>
+        <div class="card">
+          <div class="cl">🏛️ Where to File</div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <button class="btn btn-outline" style="justify-content:flex-start" onclick="toast('🌐 Opening the National Cybercrime Portal for you...','success')">🇮🇳 National Cybercrime Portal</button>
+            <button class="btn btn-outline" style="justify-content:flex-start" onclick="toast('📧 Report sent to the platform\'s safety team','success')">📱 Report to Instagram / Twitter</button>
+            <button class="btn btn-outline" style="justify-content:flex-start" onclick="toast('👮 Local police FIR template ready for printing','success')">👮 Get Local Police FIR Template</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="legal-preview" id="lpreview">
+      <h3>🌸 Cyber Harassment Complaint — CONFIDENTIAL</h3>
+      <p>To,<br>The Station House Officer / Cybercrime Cell<br>[Your Local Jurisdiction]</p>
+      <p><strong>Subject:</strong> Formal Complaint regarding <span id="ldt">Deepfake Photo/Video Without My Consent</span> — under IT Act Section 66E, 67A and IPC Section 509</p>
+      <p>I, <strong id="ldn">Priya Sharma</strong>, respectfully submit this complaint against <strong id="ldp">@shadow_x99, @usr_tmp1</strong> for online harassment causing significant emotional distress and fear for my personal safety.</p>
+      <p><strong>Incident Description:</strong> <span id="ldd">Someone has been creating and sharing fake photos of me without my consent...</span></p>
+      <p><strong>AI-Verified Evidence:</strong> HerSaathi's system assigned a Harassment Risk Score of 91/100 to the accused. Deepfake analysis returned 92% confidence of manipulation. Account correlation connects 4 profiles to a single threat actor with 98% behavioral similarity.</p>
+      <p><strong>Requested Relief:</strong> Immediate investigation, identification and action against perpetrators, takedown of all manipulated content, and action under the IT Act 2000 and IPC.</p>
+      <p>I solemnly declare the above information to be true and accurate to the best of my knowledge.</p>
+      <p><strong>Date:</strong> March 17, 2026 &nbsp;&nbsp; <strong>Signed:</strong> Priya Sharma</p>
+    </div>
+  </div>
 </main>
 
-<!-- TOAST CONTAINER -->
-<div class="toast-container" id="toast-container"></div>
+<div class="toast-stack" id="tstack"></div>
 
 <script>
-  // ——— NAVIGATION ———
-  const pageTitles = {
-    dashboard: 'Safety Dashboard',
-    deepfake: 'Deepfake Detection',
-    stalker: 'Stalker Detection Engine',
-    risk: 'Harassment Risk Score',
-    linking: 'Account Linking',
-    defense: 'Auto-Defense Mode',
-    legal: 'Legal Action Kit'
-  };
-
-  function navigate(page, btn) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('page-' + page).classList.add('active');
-    btn.classList.add('active');
-    document.getElementById('page-title').textContent = pageTitles[page];
-  }
-
-  // ——— TOAST ———
-  function showToast(msg, type = 'success') {
-    const c = document.getElementById('toast-container');
-    const t = document.createElement('div');
-    t.className = 'toast ' + type;
-    t.innerHTML = '<span>' + msg + '</span>';
-    c.appendChild(t);
-    setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(20px)'; t.style.transition = '0.3s'; }, 3000);
-    setTimeout(() => c.removeChild(t), 3300);
-  }
-
-  // ——— TOGGLE ———
-  function toggleSwitch(el) {
-    el.classList.toggle('on');
-    showToast(el.classList.contains('on') ? '✅ Feature enabled' : '⭕ Feature disabled', el.classList.contains('on') ? 'success' : 'warn');
-  }
-
-  // ——— HEATMAP ———
-  function buildHeatmap() {
-    const el = document.getElementById('heatmap');
-    const intensities = [[0,1,0,2,1,0,0],[0,0,2,3,2,1,0],[1,2,3,2,1,0,1],[0,1,1,2,3,2,1],[0,0,1,0,2,1,0]];
-    intensities.forEach(row => {
-      const r = document.createElement('div');
-      r.className = 'pattern-row';
-      row.forEach(val => {
-        const c = document.createElement('div');
-        c.className = 'pattern-cell' + (val===1?' low':val===2?' mid':val===3?' high':'');
-        r.appendChild(c);
-      });
-      el.appendChild(r);
-    });
-  }
-
-  // ——— THREAT CHART ———
-  function buildThreatChart() {
-    const el = document.getElementById('threat-chart');
-    const vals = [12, 18, 15, 31, 27, 47];
-    const max = Math.max(...vals);
-    vals.forEach(v => {
-      const b = document.createElement('div');
-      b.className = 'mini-bar';
-      b.style.height = (v / max * 100) + '%';
-      el.appendChild(b);
-    });
-  }
-
-  // ——— STALKER CHART ———
-  function buildStalkerChart() {
-    const el = document.getElementById('stalker-chart');
-    if (!el) return;
-    const vals = [2,1,0,0,0,1,2,1,3,4,5,3,2,1,0,1,2,1,3,5,8,7,9,6];
-    const max = Math.max(...vals);
-    vals.forEach(v => {
-      const b = document.createElement('div');
-      b.style.cssText = `flex:1;border-radius:3px 3px 0 0;height:${v/max*100}%;background:${v>=6?'var(--danger)':v>=4?'var(--warn)':'var(--accent2)'};opacity:0.85`;
-      el.appendChild(b);
-    });
-  }
-
-  // ——— GRAPH ———
-  function buildGraph() {
-    const canvas = document.getElementById('graph-canvas');
-    if (!canvas) return;
-    const nodes = [
-      { label: 'You', cls: 'victim', x: 50, y: 50, id: 'you' },
-      { label: '@shadow_x99', cls: 'suspect', x: 70, y: 30, id: 's1' },
-      { label: '@usr_tmp1', cls: 'linked', x: 85, y: 55, id: 'l1' },
-      { label: '@darkweb_x', cls: 'linked', x: 75, y: 75, id: 'l2' },
-      { label: '@newone_xyz', cls: 'linked', x: 88, y: 20, id: 'l3' },
-    ];
-    const edges = [['you','s1'],['s1','l1'],['s1','l2'],['s1','l3']];
-
-    // Draw edges first
-    edges.forEach(([a, b]) => {
-      const na = nodes.find(n => n.id === a);
-      const nb = nodes.find(n => n.id === b);
-      const line = document.createElement('div');
-      const dx = (nb.x - na.x) / 100 * canvas.offsetWidth;
-      const dy = (nb.y - na.y) / 100 * canvas.offsetHeight;
-      const len = Math.sqrt(dx*dx + dy*dy);
-      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-      line.className = 'graph-line';
-      line.style.cssText = `left:${na.x}%;top:${na.y}%;width:${len}px;transform:rotate(${angle}deg)`;
-      canvas.appendChild(line);
-    });
-
-    nodes.forEach(n => {
-      const wrap = document.createElement('div');
-      wrap.style.cssText = `position:absolute;left:${n.x}%;top:${n.y}%;transform:translate(-50%,-50%)`;
-      const node = document.createElement('div');
-      node.className = 'graph-node ' + n.cls;
-      node.textContent = n.label.substring(0, 3).toUpperCase();
-      const lbl = document.createElement('div');
-      lbl.className = 'graph-label';
-      lbl.textContent = n.label;
-      wrap.appendChild(node);
-      wrap.appendChild(lbl);
-      canvas.appendChild(wrap);
-    });
-  }
-
-  // ——— RISK CALCULATOR ———
-  let calcVals = { msg: 10, views: 3, linked: 0 };
-  function updateCalc(key, val) {
-    calcVals[key] = parseInt(val);
-    document.getElementById(key + '-val').textContent = val;
-    const score = Math.min(100, Math.round(
-      calcVals.msg * 0.5 + calcVals.views * 0.8 + calcVals.linked * 8
-    ));
-    const el = document.getElementById('calc-score');
-    const lbl = document.getElementById('calc-label');
-    el.textContent = score;
-    if (score >= 70) { el.style.color = 'var(--danger)'; lbl.className = 'tag tag-high'; lbl.textContent = 'HIGH RISK'; }
-    else if (score >= 40) { el.style.color = 'var(--warn)'; lbl.className = 'tag tag-medium'; lbl.textContent = 'MEDIUM RISK'; }
-    else { el.style.color = 'var(--accent3)'; lbl.className = 'tag tag-low'; lbl.textContent = 'LOW RISK'; }
-  }
-
-  function addToMonitor() {
-    const u = document.getElementById('calc-username').value || '@new_account';
-    showToast('✅ ' + u + ' added to monitoring watchlist', 'success');
-  }
-
-  // ——— DEEPFAKE UPLOAD ———
-  function startAnalysis(input) {
-    const zone = document.getElementById('upload-zone');
-    const icon = document.getElementById('upload-icon');
-    const title = document.getElementById('upload-title');
-    const sub = document.getElementById('upload-sub');
-    const file = input.files[0];
-    if (!file) return;
-
-    icon.textContent = '⏳';
-    title.textContent = 'Analyzing: ' + file.name;
-    sub.textContent = 'Running deepfake detection pipeline...';
-    zone.style.borderColor = 'var(--warn)';
-
-    const isFake = Math.random() > 0.4;
-    setTimeout(() => {
-      icon.textContent = isFake ? '⚠️' : '✅';
-      title.textContent = isFake ? 'DEEPFAKE DETECTED' : 'Authentic Content';
-      sub.textContent = isFake ? 'High confidence manipulation found' : 'No manipulation detected';
-      zone.style.borderColor = isFake ? 'var(--danger)' : 'var(--accent3)';
-
-      const result = document.getElementById('detection-result');
-      const banner = document.getElementById('result-banner');
-      const rTitle = document.getElementById('result-title');
-      const rSub = document.getElementById('result-sub');
-      const rIcon = document.getElementById('result-icon');
-
-      result.classList.add('show');
-      banner.className = 'result-banner ' + (isFake ? 'fake' : 'real');
-      rIcon.textContent = isFake ? '⚠️' : '✅';
-      rTitle.textContent = isFake ? 'DEEPFAKE DETECTED' : 'CONTENT AUTHENTIC';
-      rSub.textContent = isFake ? 'AI manipulation detected — evidence saved automatically' : 'No signs of manipulation found';
-
-      const scores = isFake ? [87, 73, 91, 64] : [4, 7, 2, 9];
-      const ids = ['sc1','sc2','sc3','sc4'];
-      const bars = ['bar1','bar2','bar3','bar4'];
-      ids.forEach((id,i) => {
-        document.getElementById(id).textContent = scores[i] + '%';
-        document.getElementById(id).style.color = scores[i] > 50 ? 'var(--danger)' : 'var(--accent3)';
-      });
-      setTimeout(() => {
-        bars.forEach((b,i) => { document.getElementById(b).style.width = scores[i] + '%'; });
-      }, 100);
-
-      if (isFake) showToast('🚨 Deepfake detected in ' + file.name + ' — evidence saved', 'danger');
-      else showToast('✅ Content verified as authentic — no manipulation found', 'success');
-    }, 2200);
-  }
-
-  // ——— LEGAL GENERATOR ———
-  function generateLegal() {
-    const name = document.getElementById('victim-name').value;
-    const type = document.getElementById('incident-type').value;
-    const perps = document.getElementById('perp-accounts').value;
-    const desc = document.getElementById('incident-desc').value;
-    document.getElementById('doc-name').textContent = name;
-    document.getElementById('doc-perps').textContent = perps;
-    document.getElementById('doc-type').textContent = type;
-    document.getElementById('doc-desc').textContent = desc;
-    const doc = document.getElementById('legal-doc');
-    doc.classList.add('show');
-    doc.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    showToast('⚖️ Cyber complaint draft generated — ready to file!', 'success');
-  }
-
-  // ——— INIT ———
-  window.onload = () => {
-    buildHeatmap();
-    buildThreatChart();
-    buildStalkerChart();
-    setTimeout(buildGraph, 100);
-    setTimeout(() => showToast('🛡️ SHEild AI is actively monitoring your digital presence', 'success'), 1000);
-  };
+const titles={home:['My Safety Home 🌸','Good morning, Priya. Your digital space is being watched over.'],check:['Check a Photo / Video 🔍','Upload anything suspicious — we\'ll tell you if it\'s been faked.'],watch:['Who\'s Watching Me? 👁️','Here are the accounts behaving unusually around your profile.'],scores:['Threat Scores 📊','See exactly how dangerous each suspicious account really is.'],links:['Connected Accounts 🔗','We\'ve found accounts that are probably the same person.'],shield:['My Shield Settings 🛡️','Control how HerSaathi protects you — automatically.'],report:['File a Complaint 📝','We\'ve done the hard work — your complaint is almost ready.']};
+function goTo(pg,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById('pg-'+pg).classList.add('active');if(btn)btn.classList.add('active');document.getElementById('pg-head').textContent=titles[pg][0];document.getElementById('pg-sub').textContent=titles[pg][1];if(pg==='links')setTimeout(buildGraph,150)}
+function toast(msg,type='success'){const s=document.getElementById('tstack');const e=document.createElement('div');e.className='toast '+type;e.innerHTML='<span>'+msg+'</span>';s.appendChild(e);setTimeout(()=>{e.style.opacity='0';e.style.transition='.3s'},3500);setTimeout(()=>{if(e.parentNode)s.removeChild(e)},3800)}
+function flipTog(el){el.classList.toggle('on');toast(el.classList.contains('on')?'✅ Protection turned on':'⭕ Protection turned off',el.classList.contains('on')?'success':'warn')}
+function buildHmap(){const el=document.getElementById('hmap');if(!el||el.children.length)return;[[0,1,0,2,1,0,0],[0,0,2,3,2,1,0],[1,2,3,2,1,0,1],[0,1,1,2,3,2,1],[0,0,1,0,2,1,0]].forEach(row=>{const r=document.createElement('div');r.className='heat-row';row.forEach(v=>{const c=document.createElement('div');c.className='heat-cell'+(v===1?' h1':v===2?' h2':v===3?' h3':'');r.appendChild(c)});el.appendChild(r)})}
+function buildTchart(){const el=document.getElementById('tchart');if(!el||el.children.length)return;[12,18,15,31,27,47].forEach(v=>{const b=document.createElement('div');b.className='bar';b.style.cssText=`height:${v/47*100}%;background:linear-gradient(to top,var(--rose-pale),var(--rose));opacity:.85`;el.appendChild(b)})}
+function buildSchart(){const el=document.getElementById('schart');if(!el||el.children.length)return;[2,1,0,0,0,1,2,1,3,4,5,3,2,1,0,1,2,1,3,5,8,7,9,6].forEach(v=>{const b=document.createElement('div');b.className='bar';const c=v>=6?'#d14b4b':v>=4?'var(--amber)':'var(--rose-soft)';b.style.cssText=`height:${v/9*100}%;background:${c};opacity:.85`;el.appendChild(b)})}
+function buildGraph(){const c=document.getElementById('garea');if(!c||c.children.length>0)return;const W=c.offsetWidth||480,H=c.offsetHeight||230;const ns=[{id:'you',lbl:'YOU',cls:'victim',xp:.18,yp:.5},{id:'s1',lbl:'@shadow_x99',cls:'suspect',xp:.5,yp:.35},{id:'l1',lbl:'@usr_tmp1',cls:'linked',xp:.75,yp:.2},{id:'l2',lbl:'@darkweb_x',cls:'linked',xp:.78,yp:.58},{id:'l3',lbl:'@newone',cls:'linked',xp:.65,yp:.78}];[['you','s1'],['s1','l1'],['s1','l2'],['s1','l3']].forEach(([a,b])=>{const na=ns.find(n=>n.id===a),nb=ns.find(n=>n.id===b);const x1=na.xp*W,y1=na.yp*H,x2=nb.xp*W,y2=nb.yp*H,len=Math.sqrt((x2-x1)**2+(y2-y1)**2),ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI;const ln=document.createElement('div');ln.className='gedge';ln.style.cssText=`left:${x1}px;top:${y1}px;width:${len}px;transform:rotate(${ang}deg)`;c.appendChild(ln)});ns.forEach(n=>{const w=document.createElement('div');w.style.cssText=`position:absolute;left:${n.xp*100}%;top:${n.yp*100}%;transform:translate(-50%,-50%)`;const nd=document.createElement('div');nd.className='gnode '+n.cls;nd.textContent=n.lbl.substring(0,3).toUpperCase();const lb=document.createElement('div');lb.className='gnlbl';lb.textContent=n.lbl;w.appendChild(nd);w.appendChild(lb);c.appendChild(w)})}
+const cv={msg:10,views:3,linked:0};
+function calcS(k,v){cv[k]=+v;document.getElementById('v'+k).textContent=v;const s=Math.min(100,Math.round(cv.msg*.5+cv.views*.8+cv.linked*8));const el=document.getElementById('cscore'),lb=document.getElementById('clabel');el.textContent=s;if(s>=70){el.style.color='#d14b4b';lb.className='tag tag-h';lb.textContent='High Risk — take action'}else if(s>=40){el.style.color='var(--amber)';lb.className='tag tag-m';lb.textContent='Concerning — keep watching'}else{el.style.color='var(--sage)';lb.className='tag tag-l';lb.textContent='Low Risk — probably fine'}}
+function addW(){const u=document.getElementById('cu').value||'@new_account';toast('✅ '+u+' added to watchlist — we\'ll alert you if anything changes','success')}
+function runDetect(inp){const file=inp.files[0];if(!file)return;const ico=document.getElementById('uico'),tit=document.getElementById('utitle'),sub=document.getElementById('usub');ico.innerHTML='<span class="spin">🌸</span>';tit.textContent='Analysing: '+file.name;sub.textContent='Running our AI checks — just a moment...';document.getElementById('upz').style.borderColor='var(--amber)';const fake=Math.random()>.4;setTimeout(()=>{ico.innerHTML=fake?'⚠️':'✅';tit.textContent=fake?'We found signs of manipulation':'This looks authentic';sub.textContent=fake?'This photo/video has likely been faked. Evidence saved.':'No manipulation detected. Looks real.';document.getElementById('upz').style.borderColor=fake?'#d14b4b':'var(--sage)';const res=document.getElementById('dres');res.classList.add('show');document.getElementById('rbanner').className='rbanner '+(fake?'fake':'real');document.getElementById('rico').textContent=fake?'⚠️':'✅';document.getElementById('rtitle').textContent=fake?'This looks fake':'This is authentic';document.getElementById('rsub').textContent=fake?'Our AI found signs of manipulation. Evidence saved automatically.':'No signs of tampering found. The content appears genuine.';const sc=fake?[87,73,91,64]:[4,7,2,9];['s1','s2','s3','s4'].forEach((id,i)=>{document.getElementById(id).textContent=sc[i]+'%';document.getElementById(id).style.color=sc[i]>50?'#d14b4b':'var(--sage)'});setTimeout(()=>['b1','b2','b3','b4'].forEach((id,i)=>document.getElementById(id).style.width=sc[i]+'%'),100);toast(fake?'⚠️ Manipulation detected in '+file.name+' — evidence saved':'✅ '+file.name+' looks genuine — no manipulation found',fake?'danger':'success')},2000)}
+function makeLegal(){document.getElementById('ldn').textContent=document.getElementById('ln').value;document.getElementById('ldt').textContent=document.getElementById('lt').value;document.getElementById('ldp').textContent=document.getElementById('lp').value;document.getElementById('ldd').textContent=document.getElementById('ld').value;const el=document.getElementById('lpreview');el.classList.add('show');el.scrollIntoView({behavior:'smooth',block:'start'});toast('✍️ Your complaint is ready! Review below and file online.','success')}
+window.addEventListener('load',()=>{buildHmap();buildTchart();buildSchart();setTimeout(buildGraph,200);setTimeout(()=>toast('🌸 Good morning, Priya! Everything looks safe right now.','success'),1200)});
 </script>
 </body>
 </html>
