@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHEild AI — Predictive Cyber Safety System</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #05050f;
+    --surface: #0d0d1f;
+    --surface2: #12122a;
+    --border: rgba(255,255,255,0.07);
+    --accent: #e83e8c;
+    --accent2: #7c3aed;
+    --accent3: #06d6a0;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #f0eeff;
+    --muted: #7a7a9d;
+    --glow: rgba(232,62,140,0.25);
+    --glow2: rgba(124,58,237,0.2);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ——— NOISE TEXTURE ——— */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.6;
+  }
+
+  /* ——— SIDEBAR ——— */
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    padding: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    padding: 28px 24px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-mark {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .logo-sub {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 2px;
+  }
+
+  .nav { padding: 20px 12px; flex: 1; }
+  .nav-group-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    padding: 0 12px;
+    margin: 16px 0 8px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: all 0.2s;
+    margin-bottom: 2px;
+    border: none; background: none; width: 100%; text-align: left;
+  }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active {
+    color: var(--text);
+    background: linear-gradient(90deg, rgba(232,62,140,0.15), rgba(124,58,237,0.1));
+    border-left: 2px solid var(--accent);
+  }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .user-pill {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border-radius: 10px;
+  }
+  .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+  }
+  .user-info { flex: 1; }
+  .user-name { font-size: 12px; font-weight: 600; }
+  .user-status { font-size: 10px; color: var(--accent3); }
+
+  /* ——— MAIN ——— */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* ——— TOPBAR ——— */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 36px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(5,5,15,0.8);
+    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  .topbar-right { display: flex; gap: 12px; align-items: center; }
+  .badge-live {
+    background: rgba(6,214,160,0.12);
+    border: 1px solid rgba(6,214,160,0.3);
+    color: var(--accent3);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .dot-pulse {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent3);
+    animation: pulse-dot 1.5s infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100%{opacity:1;transform:scale(1)}
+    50%{opacity:0.4;transform:scale(0.7)}
+  }
+
+  /* ——— PAGES ——— */
+  .page { display: none; padding: 32px 36px; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ——— SECTION HEADER ——— */
+  .section-header { margin-bottom: 28px; }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: -0.5px;
+  }
+  .section-desc { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+  /* ——— CARDS ——— */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(232,62,140,0.2); }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ——— GRID ——— */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+
+  /* ——— STAT CARDS ——— */
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 0 16px 0 80px;
+    opacity: 0.08;
+  }
+  .stat-card.pink::after { background: var(--accent); }
+  .stat-card.purple::after { background: var(--accent2); }
+  .stat-card.green::after { background: var(--accent3); }
+  .stat-card.warn::after { background: var(--warn); }
+
+  .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); }
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 32px;
+    margin: 8px 0 4px;
+  }
+  .stat-value.pink { color: var(--accent); }
+  .stat-value.purple { color: var(--accent2); }
+  .stat-value.green { color: var(--accent3); }
+  .stat-value.warn { color: var(--warn); }
+  .stat-change { font-size: 12px; color: var(--muted); }
+  .stat-change span { color: var(--danger); }
+
+  /* ——— RISK SCORE RING ——— */
+  .risk-ring-wrap {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 20px;
+  }
+  .risk-ring {
+    position: relative;
+    width: 160px; height: 160px;
+  }
+  .risk-ring svg { transform: rotate(-90deg); }
+  .risk-ring-label {
+    position: absolute;
+    inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transform: rotate(0deg);
+  }
+  .risk-score-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 36px;
+  }
+  .risk-score-text { font-size: 11px; color: var(--muted); }
+
+  /* ——— BUTTONS ——— */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    box-shadow: 0 4px 24px var(--glow);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 32px var(--glow); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger {
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--danger);
+  }
+  .btn-danger:hover { background: rgba(239,68,68,0.2); }
+  .btn-sm { padding: 6px 14px; font-size: 12px; border-radius: 8px; }
+
+  /* ——— UPLOAD ZONE ——— */
+  .upload-zone {
+    border: 2px dashed rgba(232,62,140,0.3);
+    border-radius: 16px;
+    padding: 48px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: rgba(232,62,140,0.03);
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(232,62,140,0.07);
+  }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .upload-icon { font-size: 40px; margin-bottom: 12px; }
+  .upload-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .upload-sub { font-size: 13px; color: var(--muted); }
+
+  /* ——— PROGRESS BAR ——— */
+  .progress-bar-wrap { background: rgba(255,255,255,0.06); border-radius: 99px; height: 6px; overflow: hidden; }
+  .progress-bar { height: 100%; border-radius: 99px; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); }
+  .pb-pink { background: linear-gradient(90deg, var(--accent), #ff6eb4); }
+  .pb-purple { background: linear-gradient(90deg, var(--accent2), #a855f7); }
+  .pb-green { background: linear-gradient(90deg, var(--accent3), #34d399); }
+  .pb-warn { background: linear-gradient(90deg, var(--warn), #fbbf24); }
+  .pb-red { background: linear-gradient(90deg, var(--danger), #f87171); }
+
+  /* ——— TAGS ——— */
+  .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .tag-high { background: rgba(239,68,68,0.12); color: var(--danger); border: 1px solid rgba(239,68,68,0.25); }
+  .tag-medium { background: rgba(245,158,11,0.12); color: var(--warn); border: 1px solid rgba(245,158,11,0.25); }
+  .tag-low { background: rgba(6,214,160,0.12); color: var(--accent3); border: 1px solid rgba(6,214,160,0.25); }
+  .tag-fake { background: rgba(239,68,68,0.12); color: var(--danger); border: 1px solid rgba(239,68,68,0.25); }
+  .tag-real { background: rgba(6,214,160,0.12); color: var(--accent3); border: 1px solid rgba(6,214,160,0.25); }
+  .tag-suspicious { background: rgba(245,158,11,0.12); color: var(--warn); border: 1px solid rgba(245,158,11,0.25); }
+  .tag-linked { background: rgba(124,58,237,0.12); color: #a78bfa; border: 1px solid rgba(124,58,237,0.25); }
+
+  /* ——— ALERT ITEMS ——— */
+  .alert-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--surface2);
+    margin-bottom: 8px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .alert-item:hover { border-left-color: var(--accent); }
+  .alert-item.critical { border-left-color: var(--danger); }
+  .alert-item.warning { border-left-color: var(--warn); }
+  .alert-item.info { border-left-color: var(--accent2); }
+  .alert-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .alert-content { flex: 1; }
+  .alert-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .alert-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .alert-time { font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+  /* ——— TABLE ——— */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; padding: 10px 14px;
+    font-size: 10px; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+  td {
+    padding: 12px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  tr:hover td { background: var(--surface2); }
+  .user-cell { display: flex; align-items: center; gap: 10px; }
+  .user-avatar-sm {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .bg-pink { background: rgba(232,62,140,0.2); color: var(--accent); }
+  .bg-purple { background: rgba(124,58,237,0.2); color: #a78bfa; }
+  .bg-orange { background: rgba(245,158,11,0.2); color: var(--warn); }
+  .bg-blue { background: rgba(59,130,246,0.2); color: #60a5fa; }
+
+  /* ——— INPUT ——— */
+  .input-group { margin-bottom: 16px; }
+  .input-label { font-size: 12px; color: var(--muted); margin-bottom: 6px; display: block; font-weight: 500; }
+  .input-field {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-field:focus { border-color: var(--accent); }
+  textarea.input-field { resize: vertical; min-height: 100px; line-height: 1.6; }
+
+  /* ——— TIMELINE ——— */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before {
+    content: ''; position: absolute;
+    left: 8px; top: 0; bottom: 0;
+    width: 2px; background: linear-gradient(to bottom, var(--accent), transparent);
+  }
+  .tl-item { position: relative; margin-bottom: 20px; }
+  .tl-dot {
+    position: absolute; left: -20px; top: 4px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--bg);
+  }
+  .tl-dot.warn { background: var(--warn); }
+  .tl-dot.green { background: var(--accent3); }
+  .tl-time { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
+  .tl-text { font-size: 13px; }
+
+  /* ——— SLIDER ——— */
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%; height: 4px;
+    background: var(--surface2);
+    border-radius: 99px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--glow);
+  }
+
+  /* ——— TOGGLE ——— */
+  .toggle-wrap { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .toggle-info { flex: 1; }
+  .toggle-label { font-size: 13px; font-weight: 500; }
+  .toggle-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .toggle {
+    position: relative; width: 42px; height: 22px;
+    background: var(--surface2); border-radius: 99px;
+    cursor: pointer; border: 1px solid var(--border);
+    flex-shrink: 0; transition: background 0.2s;
+  }
+  .toggle.on { background: var(--accent); border-color: var(--accent); }
+  .toggle::after {
+    content: '';
+    position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: white;
+    transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(20px); }
+
+  /* ——— DETECTION RESULT ——— */
+  .detection-result {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  .detection-result.show { display: block; }
+  .result-banner {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 24px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+  }
+  .result-banner.fake { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); }
+  .result-banner.real { background: rgba(6,214,160,0.08); border: 1px solid rgba(6,214,160,0.25); }
+  .result-icon { font-size: 32px; }
+  .result-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; }
+  .result-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+  /* ——— CHART ——— */
+  .mini-chart { display: flex; align-items: flex-end; gap: 4px; height: 50px; }
+  .mini-bar {
+    flex: 1; border-radius: 4px 4px 0 0;
+    background: linear-gradient(to top, var(--accent2), var(--accent));
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  .mini-bar:hover { opacity: 1; }
+
+  /* ——— PATTERN VIZ ——— */
+  .pattern-row { display: flex; gap: 3px; margin-bottom: 3px; }
+  .pattern-cell {
+    width: 14px; height: 14px; border-radius: 3px;
+    background: var(--surface2);
+    transition: background 0.2s;
+  }
+  .pattern-cell.low { background: rgba(232,62,140,0.2); }
+  .pattern-cell.mid { background: rgba(232,62,140,0.5); }
+  .pattern-cell.high { background: var(--accent); }
+
+  /* ——— LEGAL DOC ——— */
+  .legal-doc {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text);
+    max-height: 360px;
+    overflow-y: auto;
+    display: none;
+  }
+  .legal-doc.show { display: block; animation: fadeIn 0.3s ease; }
+  .legal-doc h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; text-align: center; margin-bottom: 16px; color: var(--accent); }
+  .legal-doc p { margin-bottom: 10px; }
+  .legal-doc strong { color: var(--text); }
+
+  /* ——— SCROLLBAR ——— */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(232,62,140,0.3); border-radius: 99px; }
+
+  /* ——— GLOW EFFECTS ——— */
+  .glow-pink { text-shadow: 0 0 20px rgba(232,62,140,0.5); }
+  .accent-text { color: var(--accent); }
+  .mb-20 { margin-bottom: 20px; }
+  .mb-12 { margin-bottom: 12px; }
+  .flex { display: flex; }
+  .gap-12 { gap: 12px; }
+  .gap-8 { gap: 8px; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .mt-16 { margin-top: 16px; }
+  .mt-20 { margin-top: 20px; }
+  .muted { color: var(--muted); }
+  .f-13 { font-size: 13px; }
+  .f-12 { font-size: 12px; }
+  .fw-600 { font-weight: 600; }
+  .syne { font-family: 'Syne', sans-serif; font-weight: 700; }
+
+  /* ——— GRAPH NODE ——— */
+  .graph-canvas {
+    background: var(--surface2);
+    border-radius: 12px;
+    min-height: 200px;
+    position: relative;
+    overflow: hidden;
+  }
+  .graph-node {
+    position: absolute;
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700;
+    border: 2px solid;
+    cursor: default;
+    transition: transform 0.2s;
+  }
+  .graph-node:hover { transform: scale(1.1); z-index: 10; }
+  .graph-node.victim {
+    background: rgba(232,62,140,0.15); border-color: var(--accent); color: var(--accent);
+    width: 54px; height: 54px; font-size: 11px;
+  }
+  .graph-node.suspect {
+    background: rgba(239,68,68,0.1); border-color: var(--danger); color: var(--danger);
+  }
+  .graph-node.linked {
+    background: rgba(245,158,11,0.1); border-color: var(--warn); color: var(--warn);
+  }
+  .graph-label {
+    position: absolute;
+    font-size: 9px; color: var(--muted);
+    text-align: center; top: calc(100% + 3px); width: 60px;
+    left: 50%; transform: translateX(-50%);
+  }
+  .graph-line {
+    position: absolute;
+    background: rgba(232,62,140,0.2);
+    height: 1px;
+    transform-origin: left center;
+  }
+
+  /* ——— HERO BANNER ——— */
+  .hero-banner {
+    background: linear-gradient(135deg, rgba(232,62,140,0.1), rgba(124,58,237,0.08));
+    border: 1px solid rgba(232,62,140,0.15);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-banner::before {
+    content: '🛡️';
+    position: absolute; right: 32px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 80px; opacity: 0.08;
+  }
+  .hero-tagline {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -0.3px;
+    max-width: 500px;
+    line-height: 1.3;
+    margin-bottom: 10px;
+  }
+  .hero-sub { font-size: 13px; color: var(--muted); max-width: 420px; line-height: 1.6; }
+
+  /* ——— NOTIFICATION TOAST ——— */
+  .toast-container {
+    position: fixed; bottom: 24px; right: 24px;
+    z-index: 999; display: flex; flex-direction: column; gap: 8px;
+  }
+  .toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    animation: slideIn 0.3s ease;
+    min-width: 260px;
+  }
+  @keyframes slideIn {
+    from{opacity:0;transform:translateX(20px)}
+    to{opacity:1;transform:translateX(0)}
+  }
+  .toast.success { border-left: 3px solid var(--accent3); }
+  .toast.warn { border-left: 3px solid var(--warn); }
+  .toast.danger { border-left: 3px solid var(--danger); }
+
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">SHEild AI</div>
+    <div class="logo-sub">Predictive Cyber Safety</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-group-label">Overview</div>
+    <button class="nav-item active" onclick="navigate('dashboard', this)">
+      <span class="nav-icon">📊</span> Dashboard
+    </button>
+
+    <div class="nav-group-label">Detection</div>
+    <button class="nav-item" onclick="navigate('deepfake', this)">
+      <span class="nav-icon">🎭</span> Deepfake Detector
+    </button>
+    <button class="nav-item" onclick="navigate('stalker', this)">
+      <span class="nav-icon">👁️</span> Stalker Engine
+    </button>
+
+    <div class="nav-group-label">Analysis</div>
+    <button class="nav-item" onclick="navigate('risk', this)">
+      <span class="nav-icon">📈</span> Risk Scores
+    </button>
+    <button class="nav-item" onclick="navigate('linking', this)">
+      <span class="nav-icon">🔗</span> Account Linking
+    </button>
+
+    <div class="nav-group-label">Protection</div>
+    <button class="nav-item" onclick="navigate('defense', this)">
+      <span class="nav-icon">🛡️</span> Auto-Defense
+    </button>
+    <button class="nav-item" onclick="navigate('legal', this)">
+      <span class="nav-icon">⚖️</span> Legal Action Kit
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="avatar">P</div>
+      <div class="user-info">
+        <div class="user-name">Priya Sharma</div>
+        <div class="user-status">● Protected</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Safety Dashboard</div>
+    <div class="topbar-right">
+      <div class="badge-live"><div class="dot-pulse"></div> Live Monitoring</div>
+      <button class="btn btn-primary btn-sm" onclick="showToast('🚨 Threat scan initiated — analyzing 247 signals...', 'warn')">🔍 Scan Now</button>
+    </div>
+  </div>
+
+  <!-- ====== DASHBOARD PAGE ====== -->
+  <div class="page active" id="page-dashboard">
+    <div class="hero-banner">
+      <div class="hero-tagline">Predicts, prevents & empowers — <span style="color:var(--accent)">before harm happens</span></div>
+      <div class="hero-sub">SHEild AI monitors your digital presence across platforms, detecting threats in real time and triggering protective actions automatically.</div>
+    </div>
+
+    <div class="grid-4 mb-20">
+      <div class="stat-card pink">
+        <div class="stat-label">Threats Detected</div>
+        <div class="stat-value pink">47</div>
+        <div class="stat-change">This month · <span>+12 vs last</span></div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-label">Deepfakes Flagged</div>
+        <div class="stat-value purple">8</div>
+        <div class="stat-change">Past 30 days · <span>+3 new</span></div>
+      </div>
+      <div class="stat-card warn">
+        <div class="stat-label">High-Risk Accounts</div>
+        <div class="stat-value warn">13</div>
+        <div class="stat-change">Currently tracked · <span>+2 today</span></div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Auto-Blocks Active</div>
+        <div class="stat-value green">31</div>
+        <div class="stat-change">Auto-defense · <span style="color:var(--accent3)">Active</span></div>
+      </div>
+    </div>
+
+    <div class="grid-2 mb-20">
+      <div class="card">
+        <div class="card-title">🚨 Live Alerts</div>
+        <div class="alert-item critical">
+          <div class="alert-icon">🔴</div>
+          <div class="alert-content">
+            <div class="alert-title">Deepfake content detected · Account @shadow_x99</div>
+            <div class="alert-desc">Manipulated image (92% confidence) linked to 3 previous incidents. Auto-block triggered.</div>
+          </div>
+          <div class="alert-time">2m ago</div>
+        </div>
+        <div class="alert-item warning">
+          <div class="alert-icon">🟡</div>
+          <div class="alert-content">
+            <div class="alert-title">Unusual message frequency · @anon_user441</div>
+            <div class="alert-desc">18 messages in 2 hours. Stalker risk score elevated to 74/100.</div>
+          </div>
+          <div class="alert-time">14m ago</div>
+        </div>
+        <div class="alert-item info">
+          <div class="alert-icon">🔵</div>
+          <div class="alert-content">
+            <div class="alert-title">Suspicious profile view cluster · 5 new accounts</div>
+            <div class="alert-desc">Similar creation dates and behavior patterns detected. Possible coordinated harassment.</div>
+          </div>
+          <div class="alert-time">1h ago</div>
+        </div>
+        <div class="alert-item critical">
+          <div class="alert-icon">🔴</div>
+          <div class="alert-content">
+            <div class="alert-title">Linked account network identified · 4 accounts</div>
+            <div class="alert-desc">Behavior similarity analysis links @usr_tmp1 to known harasser cluster.</div>
+          </div>
+          <div class="alert-time">3h ago</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📅 Activity Heatmap · Last 7 Days</div>
+        <div id="heatmap" style="margin-bottom:16px"></div>
+        <div class="flex justify-between" style="font-size:11px; color:var(--muted); margin-top:8px">
+          <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        </div>
+        <div style="margin-top:20px">
+          <div class="card-title">📊 Threat Volume Trend</div>
+          <div class="mini-chart" id="threat-chart"></div>
+          <div class="flex justify-between mt-16" style="font-size:11px;color:var(--muted)">
+            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🕐 Recent Event Timeline</div>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-time">Today, 11:43 AM</div>
+          <div class="tl-text">Deepfake image detected from <strong>@shadow_x99</strong> — auto-blocked and evidence logged</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot warn"></div>
+          <div class="tl-time">Today, 09:21 AM</div>
+          <div class="tl-text">Stalker risk score for <strong>@anon_user441</strong> crossed 70 threshold — alert sent to emergency contacts</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot green"></div>
+          <div class="tl-time">Yesterday, 6:50 PM</div>
+          <div class="tl-text">Legal complaint bundle auto-generated for cyber harassment incident #CH-2024-031</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-time">Yesterday, 2:12 PM</div>
+          <div class="tl-text">Account linking analysis connected <strong>4 new accounts</strong> to existing harasser profile cluster</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot green"></div>
+          <div class="tl-time">Mar 15, 10:00 AM</div>
+          <div class="tl-text">Auto-defense mode blocked <strong>7 accounts</strong> following pattern spike — visibility restricted</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== DEEPFAKE PAGE ====== -->
+  <div class="page" id="page-deepfake">
+    <div class="section-header">
+      <div class="section-title">🎭 Deepfake Detection Module</div>
+      <div class="section-desc">Upload any image or video to analyze for AI-generated manipulation or deepfake content</div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+          <input type="file" id="file-input" accept="image/*,video/*" onchange="startAnalysis(this)">
+          <div class="upload-icon" id="upload-icon">📂</div>
+          <div class="upload-title" id="upload-title">Drop image or video here</div>
+          <div class="upload-sub" id="upload-sub">Supports JPG, PNG, MP4 · Max 50MB</div>
+        </div>
+
+        <div class="detection-result mt-20" id="detection-result">
+          <div class="result-banner fake" id="result-banner">
+            <div class="result-icon" id="result-icon">⚠️</div>
+            <div>
+              <div class="result-title" id="result-title">DEEPFAKE DETECTED</div>
+              <div class="result-sub" id="result-sub">High confidence manipulation detected — content flagged</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">📊 Analysis Breakdown</div>
+            <div style="margin-bottom:14px">
+              <div class="flex justify-between mb-12">
+                <span class="f-13">Facial Inconsistency</span>
+                <span class="f-13 accent-text fw-600" id="sc1">87%</span>
+              </div>
+              <div class="progress-bar-wrap"><div class="progress-bar pb-pink" id="bar1" style="width:0%"></div></div>
+            </div>
+            <div style="margin-bottom:14px">
+              <div class="flex justify-between mb-12">
+                <span class="f-13">Lighting Artifacts</span>
+                <span class="f-13 accent-text fw-600" id="sc2">73%</span>
+              </div>
+              <div class="progress-bar-wrap"><div class="progress-bar pb-pink" id="bar2" style="width:0%"></div></div>
+            </div>
+            <div style="margin-bottom:14px">
+              <div class="flex justify-between mb-12">
+                <span class="f-13">Temporal Coherence</span>
+                <span class="f-13 accent-text fw-600" id="sc3">91%</span>
+              </div>
+              <div class="progress-bar-wrap"><div class="progress-bar pb-pink" id="bar3" style="width:0%"></div></div>
+            </div>
+            <div style="margin-bottom:14px">
+              <div class="flex justify-between mb-12">
+                <span class="f-13">GAN Fingerprint Match</span>
+                <span class="f-13 accent-text fw-600" id="sc4">64%</span>
+              </div>
+              <div class="progress-bar-wrap"><div class="progress-bar pb-pink" id="bar4" style="width:0%"></div></div>
+            </div>
+            <div class="mt-16 flex gap-12">
+              <button class="btn btn-primary btn-sm" onclick="showToast('📋 Evidence bundle generated & saved', 'success')">💾 Save Evidence</button>
+              <button class="btn btn-danger btn-sm" onclick="showToast('🚨 Auto-block activated for source account', 'warn')">🚫 Block Source</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card mb-20">
+          <div class="card-title">🗂️ Recent Scans</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>File</th><th>Result</th><th>Confidence</th><th>Time</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>profile_img_01.jpg</td>
+                  <td><span class="tag tag-fake">DEEPFAKE</span></td>
+                  <td style="color:var(--danger)">92%</td>
+                  <td class="muted f-12">2h ago</td>
+                </tr>
+                <tr>
+                  <td>video_clip_x.mp4</td>
+                  <td><span class="tag tag-fake">DEEPFAKE</span></td>
+                  <td style="color:var(--danger)">88%</td>
+                  <td class="muted f-12">1d ago</td>
+                </tr>
+                <tr>
+                  <td>screenshot_2024.png</td>
+                  <td><span class="tag tag-real">AUTHENTIC</span></td>
+                  <td style="color:var(--accent3)">3%</td>
+                  <td class="muted f-12">2d ago</td>
+                </tr>
+                <tr>
+                  <td>photo_send.jpg</td>
+                  <td><span class="tag tag-real">AUTHENTIC</span></td>
+                  <td style="color:var(--accent3)">7%</td>
+                  <td class="muted f-12">3d ago</td>
+                </tr>
+                <tr>
+                  <td>story_frame.png</td>
+                  <td><span class="tag tag-fake">DEEPFAKE</span></td>
+                  <td style="color:var(--danger)">79%</td>
+                  <td class="muted f-12">5d ago</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">ℹ️ How It Works</div>
+          <div class="timeline" style="padding-left:20px">
+            <div class="tl-item">
+              <div class="tl-dot green"></div>
+              <div class="tl-text f-13"><strong>Step 1:</strong> Multi-model ensemble analysis (FaceForensics++ trained)</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot green"></div>
+              <div class="tl-text f-13"><strong>Step 2:</strong> Facial landmark consistency check across frames</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot green"></div>
+              <div class="tl-text f-13"><strong>Step 3:</strong> GAN fingerprint detection via frequency domain analysis</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot green"></div>
+              <div class="tl-text f-13"><strong>Step 4:</strong> Cross-reference with known harasser account database</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== STALKER ENGINE ====== -->
+  <div class="page" id="page-stalker">
+    <div class="section-header">
+      <div class="section-title">👁️ Stalker Detection Engine</div>
+      <div class="section-desc">Tracks behavioral signals across platforms to identify suspicious patterns before escalation</div>
+    </div>
+
+    <div class="grid-3 mb-20">
+      <div class="stat-card pink">
+        <div class="stat-label">Accounts Tracked</div>
+        <div class="stat-value pink">156</div>
+        <div class="stat-change">Real-time monitoring</div>
+      </div>
+      <div class="stat-card warn">
+        <div class="stat-label">Flagged Today</div>
+        <div class="stat-value warn">7</div>
+        <div class="stat-change">Anomalous behavior</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-label">Patterns Found</div>
+        <div class="stat-value purple">23</div>
+        <div class="stat-change">Last 7 days</div>
+      </div>
+    </div>
+
+    <div class="card mb-20">
+      <div class="card-title">🚩 Monitored Accounts · Risk Breakdown</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Account</th>
+              <th>Msg Frequency</th>
+              <th>Profile Views</th>
+              <th>Multi-Account</th>
+              <th>Night Activity</th>
+              <th>Risk Level</th>
+              <th>Score</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="user-cell"><div class="user-avatar-sm bg-pink">S</div>@shadow_x99</div></td>
+              <td><span style="color:var(--danger)">⚠️ 47/day</span></td>
+              <td><span style="color:var(--danger)">⚠️ 31x</span></td>
+              <td><span style="color:var(--danger)">⚠️ 3 linked</span></td>
+              <td><span style="color:var(--danger)">⚠️ Yes</span></td>
+              <td><span class="tag tag-high">HIGH</span></td>
+              <td><strong style="color:var(--danger)">91</strong>/100</td>
+              <td><button class="btn btn-danger btn-sm" onclick="showToast('🚫 @shadow_x99 auto-blocked and reported', 'danger')">Block</button></td>
+            </tr>
+            <tr>
+              <td><div class="user-cell"><div class="user-avatar-sm bg-orange">A</div>@anon_user441</div></td>
+              <td><span style="color:var(--warn)">⚡ 18/2h</span></td>
+              <td><span style="color:var(--warn)">⚡ 12x</span></td>
+              <td>None</td>
+              <td><span style="color:var(--warn)">⚡ Partial</span></td>
+              <td><span class="tag tag-medium">MEDIUM</span></td>
+              <td><strong style="color:var(--warn)">74</strong>/100</td>
+              <td><button class="btn btn-outline btn-sm" onclick="showToast('👁️ @anon_user441 moved to watchlist', 'warn')">Watch</button></td>
+            </tr>
+            <tr>
+              <td><div class="user-cell"><div class="user-avatar-sm bg-purple">X</div>@xuser_tmp12</div></td>
+              <td>Normal</td>
+              <td><span style="color:var(--warn)">⚡ 8x</span></td>
+              <td><span style="color:var(--warn)">⚡ 1 possible</span></td>
+              <td>No</td>
+              <td><span class="tag tag-medium">MEDIUM</span></td>
+              <td><strong style="color:var(--warn)">58</strong>/100</td>
+              <td><button class="btn btn-outline btn-sm">Monitor</button></td>
+            </tr>
+            <tr>
+              <td><div class="user-cell"><div class="user-avatar-sm bg-blue">N</div>@new_acc_2024</div></td>
+              <td>Normal</td>
+              <td>3x</td>
+              <td>None</td>
+              <td>No</td>
+              <td><span class="tag tag-low">LOW</span></td>
+              <td><strong style="color:var(--accent3)">22</strong>/100</td>
+              <td><button class="btn btn-outline btn-sm">View</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">📡 Behavioral Signals Tracked</div>
+        <div style="margin-bottom:14px">
+          <div class="flex justify-between mb-12">
+            <span class="f-13">Message Frequency Anomaly</span>
+            <span class="f-13 fw-600" style="color:var(--danger)">Critical</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-red" style="width:91%"></div></div>
+        </div>
+        <div style="margin-bottom:14px">
+          <div class="flex justify-between mb-12">
+            <span class="f-13">Repeat Profile Visits</span>
+            <span class="f-13 fw-600" style="color:var(--danger)">High</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-pink" style="width:78%"></div></div>
+        </div>
+        <div style="margin-bottom:14px">
+          <div class="flex justify-between mb-12">
+            <span class="f-13">Multi-Account Patterns</span>
+            <span class="f-13 fw-600" style="color:var(--warn)">Medium</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-warn" style="width:62%"></div></div>
+        </div>
+        <div style="margin-bottom:14px">
+          <div class="flex justify-between mb-12">
+            <span class="f-13">Off-Hours Activity Spikes</span>
+            <span class="f-13 fw-600" style="color:var(--warn)">Elevated</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-warn" style="width:55%"></div></div>
+        </div>
+        <div style="margin-bottom:14px">
+          <div class="flex justify-between mb-12">
+            <span class="f-13">Content Similarity Score</span>
+            <span class="f-13 fw-600" style="color:var(--accent3)">Normal</span>
+          </div>
+          <div class="progress-bar-wrap"><div class="progress-bar pb-green" style="width:28%"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🕐 Activity Pattern · @shadow_x99</div>
+        <p class="f-12 muted mb-12">Hourly activity distribution (spikes indicate anomalous behavior)</p>
+        <div id="stalker-chart" style="display:flex;align-items:flex-end;gap:3px;height:80px;margin-bottom:8px"></div>
+        <div class="flex justify-between" style="font-size:10px;color:var(--muted)">
+          <span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span>
+        </div>
+        <div class="alert-item critical mt-16">
+          <div class="alert-icon">🔴</div>
+          <div class="alert-content">
+            <div class="alert-title">Peak activity: 1:00 AM – 3:00 AM</div>
+            <div class="alert-desc">Consistent late-night harassment pattern detected over 7 days</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== RISK SCORES PAGE ====== -->
+  <div class="page" id="page-risk">
+    <div class="section-header">
+      <div class="section-title">📈 Harassment Risk Score</div>
+      <div class="section-desc">AI-computed risk score for each flagged account — explainable, data-driven, and actionable</div>
+    </div>
+
+    <div class="grid-3 mb-20">
+      <div class="card" style="border-color:rgba(239,68,68,0.3)">
+        <div class="risk-ring-wrap">
+          <div class="risk-ring">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="65" fill="none" stroke="rgba(239,68,68,0.1)" stroke-width="12"/>
+              <circle cx="80" cy="80" r="65" fill="none" stroke="var(--danger)" stroke-width="12"
+                stroke-dasharray="408" stroke-dashoffset="37" stroke-linecap="round"/>
+            </svg>
+            <div class="risk-ring-label">
+              <div class="risk-score-num" style="color:var(--danger)">91</div>
+              <div class="risk-score-text">CRITICAL</div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:12px">
+            <div class="fw-600">@shadow_x99</div>
+            <div class="f-12 muted">Deepfake + Stalking + Linked</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-color:rgba(245,158,11,0.3)">
+        <div class="risk-ring-wrap">
+          <div class="risk-ring">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="65" fill="none" stroke="rgba(245,158,11,0.1)" stroke-width="12"/>
+              <circle cx="80" cy="80" r="65" fill="none" stroke="var(--warn)" stroke-width="12"
+                stroke-dasharray="408" stroke-dashoffset="105" stroke-linecap="round"/>
+            </svg>
+            <div class="risk-ring-label">
+              <div class="risk-score-num" style="color:var(--warn)">74</div>
+              <div class="risk-score-text">HIGH</div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:12px">
+            <div class="fw-600">@anon_user441</div>
+            <div class="f-12 muted">Msg Frequency + Night Activity</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-color:rgba(6,214,160,0.3)">
+        <div class="risk-ring-wrap">
+          <div class="risk-ring">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="65" fill="none" stroke="rgba(6,214,160,0.1)" stroke-width="12"/>
+              <circle cx="80" cy="80" r="65" fill="none" stroke="var(--accent3)" stroke-width="12"
+                stroke-dasharray="408" stroke-dashoffset="317" stroke-linecap="round"/>
+            </svg>
+            <div class="risk-ring-label">
+              <div class="risk-score-num" style="color:var(--accent3)">22</div>
+              <div class="risk-score-text">LOW</div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:12px">
+            <div class="fw-600">@new_acc_2024</div>
+            <div class="f-12 muted">Minimal behavioral signals</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-20">
+      <div class="card-title">🧮 Score Calculator — Add New Account</div>
+      <div class="grid-2">
+        <div>
+          <div class="input-group">
+            <label class="input-label">Account Username</label>
+            <input class="input-field" type="text" placeholder="@username" id="calc-username">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Messages per day: <span id="msg-val">10</span></label>
+            <input type="range" min="0" max="100" value="10" oninput="updateCalc('msg', this.value)" id="msg-slider">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Profile views (past week): <span id="views-val">3</span></label>
+            <input type="range" min="0" max="50" value="3" oninput="updateCalc('views', this.value)" id="views-slider">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Linked accounts found: <span id="linked-val">0</span></label>
+            <input type="range" min="0" max="10" value="0" oninput="updateCalc('linked', this.value)" id="linked-slider">
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+          <div style="text-align:center">
+            <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">Computed Risk Score</div>
+            <div id="calc-score" class="syne" style="font-size:72px;color:var(--accent3)">18</div>
+            <div id="calc-label" class="tag tag-low" style="margin-top:4px">LOW RISK</div>
+          </div>
+          <button class="btn btn-primary" onclick="addToMonitor()">➕ Add to Monitoring</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== ACCOUNT LINKING ====== -->
+  <div class="page" id="page-linking">
+    <div class="section-header">
+      <div class="section-title">🔗 Suspicious Account Linking</div>
+      <div class="section-desc">Identifies probable source connections using behavior similarity, timing correlation & interaction overlap</div>
+    </div>
+
+    <div class="card mb-20" style="border-color:rgba(124,58,237,0.3)">
+      <div class="card-title">🕸️ Account Relationship Graph · Primary Threat Cluster</div>
+      <p class="f-12 muted mb-12">Nodes represent accounts. Color indicates role: <span style="color:var(--accent)">victim</span> · <span style="color:var(--danger)">primary suspect</span> · <span style="color:var(--warn)">linked accounts</span></p>
+      <div class="graph-canvas" id="graph-canvas" style="height:240px">
+        <!-- Drawn by JS -->
+      </div>
+      <div class="flex gap-12 mt-16">
+        <div class="flex items-center gap-8"><div style="width:12px;height:12px;border-radius:50%;background:var(--accent)"></div><span class="f-12">You (Victim)</span></div>
+        <div class="flex items-center gap-8"><div style="width:12px;height:12px;border-radius:50%;background:var(--danger)"></div><span class="f-12">Primary Suspect</span></div>
+        <div class="flex items-center gap-8"><div style="width:12px;height:12px;border-radius:50%;background:var(--warn)"></div><span class="f-12">Linked / Alt Accounts</span></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">🔍 Linking Evidence · @shadow_x99 Cluster</div>
+        <div class="alert-item">
+          <div class="alert-icon">📱</div>
+          <div class="alert-content">
+            <div class="alert-title">Device Fingerprint Match</div>
+            <div class="alert-desc">@shadow_x99 and @usr_tmp1 share identical device/browser fingerprint (98% match)</div>
+          </div>
+          <span class="tag tag-linked">STRONG</span>
+        </div>
+        <div class="alert-item">
+          <div class="alert-icon">⏰</div>
+          <div class="alert-content">
+            <div class="alert-title">Timing Correlation</div>
+            <div class="alert-desc">Activity windows perfectly correlated — both active/inactive within 2 minutes of each other</div>
+          </div>
+          <span class="tag tag-linked">STRONG</span>
+        </div>
+        <div class="alert-item">
+          <div class="alert-icon">✍️</div>
+          <div class="alert-content">
+            <div class="alert-title">Writing Style Analysis</div>
+            <div class="alert-desc">NLP analysis shows 84% style similarity in message phrasing and capitalization patterns</div>
+          </div>
+          <span class="tag tag-suspicious">MEDIUM</span>
+        </div>
+        <div class="alert-item">
+          <div class="alert-icon">📍</div>
+          <div class="alert-content">
+            <div class="alert-title">IP Geolocation Cluster</div>
+            <div class="alert-desc">Both accounts resolve to same ISP subnet with <12hr creation gap</div>
+          </div>
+          <span class="tag tag-suspicious">MEDIUM</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 Linked Account Registry</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Account</th><th>Similarity</th><th>Created</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><div class="user-cell"><div class="user-avatar-sm bg-pink">S</div>@shadow_x99</div></td>
+                <td><strong style="color:var(--danger)">PRIMARY</strong></td>
+                <td class="muted f-12">Mar 2023</td>
+                <td><span class="tag tag-high">Blocked</span></td>
+              </tr>
+              <tr>
+                <td><div class="user-cell"><div class="user-avatar-sm bg-orange">U</div>@usr_tmp1</div></td>
+                <td style="color:var(--danger)">98% match</td>
+                <td class="muted f-12">Jan 2024</td>
+                <td><span class="tag tag-high">Blocked</span></td>
+              </tr>
+              <tr>
+                <td><div class="user-cell"><div class="user-avatar-sm bg-purple">D</div>@darkweb_x</div></td>
+                <td style="color:var(--warn)">76% match</td>
+                <td class="muted f-12">Feb 2024</td>
+                <td><span class="tag tag-medium">Watching</span></td>
+              </tr>
+              <tr>
+                <td><div class="user-cell"><div class="user-avatar-sm bg-blue">N</div>@newone_xyz</div></td>
+                <td style="color:var(--warn)">61% match</td>
+                <td class="muted f-12">Mar 2024</td>
+                <td><span class="tag tag-medium">Flagged</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button class="btn btn-primary mt-16" onclick="showToast('🔗 Cluster report generated — 4 accounts linked to single threat actor', 'warn')">Generate Cluster Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== AUTO DEFENSE ====== -->
+  <div class="page" id="page-defense">
+    <div class="section-header">
+      <div class="section-title">🛡️ Auto-Defense Mode</div>
+      <div class="section-desc">Configure automated protective responses — move from passive detection to active prevention</div>
+    </div>
+
+    <div class="grid-2 mb-20">
+      <div class="card">
+        <div class="card-title">⚙️ Auto-Response Settings</div>
+        <div class="toggle-wrap">
+          <div class="toggle-info">
+            <div class="toggle-label">Auto-Block High Risk Accounts</div>
+            <div class="toggle-desc">Automatically block accounts scoring ≥80 without confirmation</div>
+          </div>
+          <div class="toggle on" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="toggle-wrap">
+          <div class="toggle-info">
+            <div class="toggle-label">Restrict Profile Visibility</div>
+            <div class="toggle-desc">Hide your profile from suspicious/unverified accounts temporarily</div>
+          </div>
+          <div class="toggle on" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="toggle-wrap">
+          <div class="toggle-info">
+            <div class="toggle-label">Alert Emergency Contacts</div>
+            <div class="toggle-desc">Send SMS alert to trusted contacts when critical threat detected</div>
+          </div>
+          <div class="toggle on" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="toggle-wrap">
+          <div class="toggle-info">
+            <div class="toggle-label">Auto-Save Evidence Bundles</div>
+            <div class="toggle-desc">Automatically capture screenshots, logs, and metadata for legal use</div>
+          </div>
+          <div class="toggle on" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="toggle-wrap">
+          <div class="toggle-info">
+            <div class="toggle-label">Cross-Platform Reporting</div>
+            <div class="toggle-desc">Auto-report flagged accounts to Instagram, Twitter, and WhatsApp</div>
+          </div>
+          <div class="toggle" onclick="toggleSwitch(this)"></div>
+        </div>
+        <div class="toggle-wrap" style="border:none">
+          <div class="toggle-info">
+            <div class="toggle-label">Escalate to Cybercrime Portal</div>
+            <div class="toggle-desc">Automatically file with cybercrime.gov.in for score ≥90 accounts</div>
+          </div>
+          <div class="toggle" onclick="toggleSwitch(this)"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📊 Defense Statistics</div>
+        <div class="grid-2" style="gap:12px;margin-bottom:20px">
+          <div style="background:var(--surface2);padding:16px;border-radius:12px;text-align:center">
+            <div class="syne" style="font-size:28px;color:var(--accent)">31</div>
+            <div class="f-12 muted">Auto-Blocks</div>
+          </div>
+          <div style="background:var(--surface2);padding:16px;border-radius:12px;text-align:center">
+            <div class="syne" style="font-size:28px;color:var(--accent3)">8</div>
+            <div class="f-12 muted">Alerts Sent</div>
+          </div>
+          <div style="background:var(--surface2);padding:16px;border-radius:12px;text-align:center">
+            <div class="syne" style="font-size:28px;color:var(--accent2)">5</div>
+            <div class="f-12 muted">Reports Filed</div>
+          </div>
+          <div style="background:var(--surface2);padding:16px;border-radius:12px;text-align:center">
+            <div class="syne" style="font-size:28px;color:var(--warn)">12</div>
+            <div class="f-12 muted">Bundles Saved</div>
+          </div>
+        </div>
+
+        <div class="card-title">👥 Emergency Contacts</div>
+        <div style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px">
+          <div class="user-avatar-sm bg-pink">M</div>
+          <div style="flex:1"><div class="f-13 fw-600">Mom</div><div class="f-12 muted">+91 98xxx xxxxx</div></div>
+          <span class="tag tag-low">Active</span>
+        </div>
+        <div style="background:var(--surface2);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px">
+          <div class="user-avatar-sm bg-purple">R</div>
+          <div style="flex:1"><div class="f-13 fw-600">Riya (Friend)</div><div class="f-12 muted">+91 87xxx xxxxx</div></div>
+          <span class="tag tag-low">Active</span>
+        </div>
+        <button class="btn btn-outline btn-sm mt-16" onclick="showToast('✅ Contact added successfully', 'success')">➕ Add Contact</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔥 Trigger Manual Defense</div>
+      <div class="grid-3" style="gap:12px">
+        <button class="btn btn-danger" style="justify-content:center;padding:16px" onclick="showToast('🔒 Profile locked — only approved followers can view', 'warn')">
+          🔒 Lock Profile Now
+        </button>
+        <button class="btn btn-primary" style="justify-content:center;padding:16px" onclick="showToast('📱 Emergency alert sent to 2 contacts', 'success')">
+          📱 Send Emergency Alert
+        </button>
+        <button class="btn btn-outline" style="justify-content:center;padding:16px" onclick="showToast('📋 Full incident report being compiled...', 'success')">
+          📋 Generate Full Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== LEGAL ACTION KIT ====== -->
+  <div class="page" id="page-legal">
+    <div class="section-header">
+      <div class="section-title">⚖️ Legal Action Kit</div>
+      <div class="section-desc">One-click generation of cyber complaint drafts, evidence bundles, and report-ready documentation</div>
+    </div>
+
+    <div class="grid-2 mb-20">
+      <div class="card">
+        <div class="card-title">📝 Complaint Generator</div>
+        <div class="input-group">
+          <label class="input-label">Your Name</label>
+          <input class="input-field" type="text" placeholder="Full legal name" value="Priya Sharma" id="victim-name">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Incident Type</label>
+          <select class="input-field" id="incident-type">
+            <option>Deepfake Image/Video Harassment</option>
+            <option>Cyberstalking</option>
+            <option>Online Defamation</option>
+            <option>Non-Consensual Intimate Content</option>
+            <option>Coordinated Harassment Campaign</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Perpetrator Account(s)</label>
+          <input class="input-field" type="text" placeholder="@username, @username2..." value="@shadow_x99, @usr_tmp1" id="perp-accounts">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Brief Description</label>
+          <textarea class="input-field" id="incident-desc" placeholder="Describe the incident...">Repeated deepfake images created and distributed without consent. Multiple accounts linked to the same perpetrator have been harassing me since March 2024. AI analysis confirms 92% deepfake probability and linked account network.</textarea>
+        </div>
+        <button class="btn btn-primary" onclick="generateLegal()">⚖️ Generate Legal Complaint</button>
+      </div>
+
+      <div>
+        <div class="card mb-20">
+          <div class="card-title">📦 Evidence Bundle</div>
+          <div class="alert-item">
+            <div class="alert-icon">🖼️</div>
+            <div class="alert-content">
+              <div class="alert-title">Deepfake Detection Reports (3 files)</div>
+              <div class="alert-desc">AI analysis output with confidence scores + metadata</div>
+            </div>
+            <span class="tag tag-low">Ready</span>
+          </div>
+          <div class="alert-item">
+            <div class="alert-icon">📊</div>
+            <div class="alert-content">
+              <div class="alert-title">Behavior Analysis Logs (47 entries)</div>
+              <div class="alert-desc">Timestamped message frequency, view counts, pattern data</div>
+            </div>
+            <span class="tag tag-low">Ready</span>
+          </div>
+          <div class="alert-item">
+            <div class="alert-icon">🔗</div>
+            <div class="alert-content">
+              <div class="alert-title">Account Linking Report</div>
+              <div class="alert-desc">Graph analysis showing 4 accounts tied to single threat actor</div>
+            </div>
+            <span class="tag tag-low">Ready</span>
+          </div>
+          <div class="alert-item">
+            <div class="alert-icon">📸</div>
+            <div class="alert-content">
+              <div class="alert-title">Screenshots Archive (23 items)</div>
+              <div class="alert-desc">Auto-captured evidence with GPS timestamps</div>
+            </div>
+            <span class="tag tag-low">Ready</span>
+          </div>
+          <button class="btn btn-outline mt-16 btn-sm" onclick="showToast('📦 Evidence bundle downloaded (ZIP, 18.4MB)', 'success')">⬇️ Download Full Bundle (.zip)</button>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🏛️ File Online</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-outline" style="justify-content:flex-start" onclick="showToast('🌐 Opening cybercrime.gov.in portal...', 'success')">
+              🇮🇳 National Cybercrime Reporting Portal
+            </button>
+            <button class="btn btn-outline" style="justify-content:flex-start" onclick="showToast('📧 Report sent to platform safety team', 'success')">
+              📱 Report to Platform (Instagram/Twitter)
+            </button>
+            <button class="btn btn-outline" style="justify-content:flex-start" onclick="showToast('📋 Complaint ready for local police station', 'success')">
+              👮 Local Police e-FIR Template
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-doc" id="legal-doc">
+      <h3>CYBER COMPLAINT DRAFT — CONFIDENTIAL</h3>
+      <p>To,<br>The Station House Officer / Cybercrime Cell<br>[Jurisdiction Police Station]</p>
+      <p><strong>Subject:</strong> Complaint regarding Deepfake Image/Video Harassment under IT Act Section 66E, 67A and IPC Section 509</p>
+      <p>I, <strong id="doc-name">Priya Sharma</strong>, hereby submit this complaint against the perpetrator(s) identified as <strong id="doc-perps">@shadow_x99, @usr_tmp1</strong> operating on social media platforms.</p>
+      <p><strong>Nature of Offence:</strong> <span id="doc-type">Deepfake Image/Video Harassment</span></p>
+      <p><strong>Incident Details:</strong> <span id="doc-desc">Repeated deepfake images created and distributed without consent. Multiple accounts linked to the same perpetrator have been harassing me since March 2024. AI analysis confirms 92% deepfake probability and linked account network.</span></p>
+      <p><strong>AI-Verified Evidence:</strong> SHEild AI system has flagged the accused accounts with a Harassment Risk Score of 91/100. Deepfake analysis shows 92% confidence of content manipulation. Account linking analysis confirms 4 accounts tied to a single threat actor with 98% behavioral similarity.</p>
+      <p><strong>Relief Sought:</strong> Immediate investigation, identification of perpetrators, takedown of manipulated content, and action under applicable provisions of IT Act 2000 and IPC.</p>
+      <p>I declare that the information given above is true and correct to the best of my knowledge.</p>
+      <p><strong>Date:</strong> March 17, 2026 &nbsp;&nbsp; <strong>Signature:</strong> Priya Sharma</p>
+    </div>
+  </div>
+
+</main>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+  // ——— NAVIGATION ———
+  const pageTitles = {
+    dashboard: 'Safety Dashboard',
+    deepfake: 'Deepfake Detection',
+    stalker: 'Stalker Detection Engine',
+    risk: 'Harassment Risk Score',
+    linking: 'Account Linking',
+    defense: 'Auto-Defense Mode',
+    legal: 'Legal Action Kit'
+  };
+
+  function navigate(page, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    btn.classList.add('active');
+    document.getElementById('page-title').textContent = pageTitles[page];
+  }
+
+  // ——— TOAST ———
+  function showToast(msg, type = 'success') {
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = 'toast ' + type;
+    t.innerHTML = '<span>' + msg + '</span>';
+    c.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(20px)'; t.style.transition = '0.3s'; }, 3000);
+    setTimeout(() => c.removeChild(t), 3300);
+  }
+
+  // ——— TOGGLE ———
+  function toggleSwitch(el) {
+    el.classList.toggle('on');
+    showToast(el.classList.contains('on') ? '✅ Feature enabled' : '⭕ Feature disabled', el.classList.contains('on') ? 'success' : 'warn');
+  }
+
+  // ——— HEATMAP ———
+  function buildHeatmap() {
+    const el = document.getElementById('heatmap');
+    const intensities = [[0,1,0,2,1,0,0],[0,0,2,3,2,1,0],[1,2,3,2,1,0,1],[0,1,1,2,3,2,1],[0,0,1,0,2,1,0]];
+    intensities.forEach(row => {
+      const r = document.createElement('div');
+      r.className = 'pattern-row';
+      row.forEach(val => {
+        const c = document.createElement('div');
+        c.className = 'pattern-cell' + (val===1?' low':val===2?' mid':val===3?' high':'');
+        r.appendChild(c);
+      });
+      el.appendChild(r);
+    });
+  }
+
+  // ——— THREAT CHART ———
+  function buildThreatChart() {
+    const el = document.getElementById('threat-chart');
+    const vals = [12, 18, 15, 31, 27, 47];
+    const max = Math.max(...vals);
+    vals.forEach(v => {
+      const b = document.createElement('div');
+      b.className = 'mini-bar';
+      b.style.height = (v / max * 100) + '%';
+      el.appendChild(b);
+    });
+  }
+
+  // ——— STALKER CHART ———
+  function buildStalkerChart() {
+    const el = document.getElementById('stalker-chart');
+    if (!el) return;
+    const vals = [2,1,0,0,0,1,2,1,3,4,5,3,2,1,0,1,2,1,3,5,8,7,9,6];
+    const max = Math.max(...vals);
+    vals.forEach(v => {
+      const b = document.createElement('div');
+      b.style.cssText = `flex:1;border-radius:3px 3px 0 0;height:${v/max*100}%;background:${v>=6?'var(--danger)':v>=4?'var(--warn)':'var(--accent2)'};opacity:0.85`;
+      el.appendChild(b);
+    });
+  }
+
+  // ——— GRAPH ———
+  function buildGraph() {
+    const canvas = document.getElementById('graph-canvas');
+    if (!canvas) return;
+    const nodes = [
+      { label: 'You', cls: 'victim', x: 50, y: 50, id: 'you' },
+      { label: '@shadow_x99', cls: 'suspect', x: 70, y: 30, id: 's1' },
+      { label: '@usr_tmp1', cls: 'linked', x: 85, y: 55, id: 'l1' },
+      { label: '@darkweb_x', cls: 'linked', x: 75, y: 75, id: 'l2' },
+      { label: '@newone_xyz', cls: 'linked', x: 88, y: 20, id: 'l3' },
+    ];
+    const edges = [['you','s1'],['s1','l1'],['s1','l2'],['s1','l3']];
+
+    // Draw edges first
+    edges.forEach(([a, b]) => {
+      const na = nodes.find(n => n.id === a);
+      const nb = nodes.find(n => n.id === b);
+      const line = document.createElement('div');
+      const dx = (nb.x - na.x) / 100 * canvas.offsetWidth;
+      const dy = (nb.y - na.y) / 100 * canvas.offsetHeight;
+      const len = Math.sqrt(dx*dx + dy*dy);
+      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      line.className = 'graph-line';
+      line.style.cssText = `left:${na.x}%;top:${na.y}%;width:${len}px;transform:rotate(${angle}deg)`;
+      canvas.appendChild(line);
+    });
+
+    nodes.forEach(n => {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = `position:absolute;left:${n.x}%;top:${n.y}%;transform:translate(-50%,-50%)`;
+      const node = document.createElement('div');
+      node.className = 'graph-node ' + n.cls;
+      node.textContent = n.label.substring(0, 3).toUpperCase();
+      const lbl = document.createElement('div');
+      lbl.className = 'graph-label';
+      lbl.textContent = n.label;
+      wrap.appendChild(node);
+      wrap.appendChild(lbl);
+      canvas.appendChild(wrap);
+    });
+  }
+
+  // ——— RISK CALCULATOR ———
+  let calcVals = { msg: 10, views: 3, linked: 0 };
+  function updateCalc(key, val) {
+    calcVals[key] = parseInt(val);
+    document.getElementById(key + '-val').textContent = val;
+    const score = Math.min(100, Math.round(
+      calcVals.msg * 0.5 + calcVals.views * 0.8 + calcVals.linked * 8
+    ));
+    const el = document.getElementById('calc-score');
+    const lbl = document.getElementById('calc-label');
+    el.textContent = score;
+    if (score >= 70) { el.style.color = 'var(--danger)'; lbl.className = 'tag tag-high'; lbl.textContent = 'HIGH RISK'; }
+    else if (score >= 40) { el.style.color = 'var(--warn)'; lbl.className = 'tag tag-medium'; lbl.textContent = 'MEDIUM RISK'; }
+    else { el.style.color = 'var(--accent3)'; lbl.className = 'tag tag-low'; lbl.textContent = 'LOW RISK'; }
+  }
+
+  function addToMonitor() {
+    const u = document.getElementById('calc-username').value || '@new_account';
+    showToast('✅ ' + u + ' added to monitoring watchlist', 'success');
+  }
+
+  // ——— DEEPFAKE UPLOAD ———
+  function startAnalysis(input) {
+    const zone = document.getElementById('upload-zone');
+    const icon = document.getElementById('upload-icon');
+    const title = document.getElementById('upload-title');
+    const sub = document.getElementById('upload-sub');
+    const file = input.files[0];
+    if (!file) return;
+
+    icon.textContent = '⏳';
+    title.textContent = 'Analyzing: ' + file.name;
+    sub.textContent = 'Running deepfake detection pipeline...';
+    zone.style.borderColor = 'var(--warn)';
+
+    const isFake = Math.random() > 0.4;
+    setTimeout(() => {
+      icon.textContent = isFake ? '⚠️' : '✅';
+      title.textContent = isFake ? 'DEEPFAKE DETECTED' : 'Authentic Content';
+      sub.textContent = isFake ? 'High confidence manipulation found' : 'No manipulation detected';
+      zone.style.borderColor = isFake ? 'var(--danger)' : 'var(--accent3)';
+
+      const result = document.getElementById('detection-result');
+      const banner = document.getElementById('result-banner');
+      const rTitle = document.getElementById('result-title');
+      const rSub = document.getElementById('result-sub');
+      const rIcon = document.getElementById('result-icon');
+
+      result.classList.add('show');
+      banner.className = 'result-banner ' + (isFake ? 'fake' : 'real');
+      rIcon.textContent = isFake ? '⚠️' : '✅';
+      rTitle.textContent = isFake ? 'DEEPFAKE DETECTED' : 'CONTENT AUTHENTIC';
+      rSub.textContent = isFake ? 'AI manipulation detected — evidence saved automatically' : 'No signs of manipulation found';
+
+      const scores = isFake ? [87, 73, 91, 64] : [4, 7, 2, 9];
+      const ids = ['sc1','sc2','sc3','sc4'];
+      const bars = ['bar1','bar2','bar3','bar4'];
+      ids.forEach((id,i) => {
+        document.getElementById(id).textContent = scores[i] + '%';
+        document.getElementById(id).style.color = scores[i] > 50 ? 'var(--danger)' : 'var(--accent3)';
+      });
+      setTimeout(() => {
+        bars.forEach((b,i) => { document.getElementById(b).style.width = scores[i] + '%'; });
+      }, 100);
+
+      if (isFake) showToast('🚨 Deepfake detected in ' + file.name + ' — evidence saved', 'danger');
+      else showToast('✅ Content verified as authentic — no manipulation found', 'success');
+    }, 2200);
+  }
+
+  // ——— LEGAL GENERATOR ———
+  function generateLegal() {
+    const name = document.getElementById('victim-name').value;
+    const type = document.getElementById('incident-type').value;
+    const perps = document.getElementById('perp-accounts').value;
+    const desc = document.getElementById('incident-desc').value;
+    document.getElementById('doc-name').textContent = name;
+    document.getElementById('doc-perps').textContent = perps;
+    document.getElementById('doc-type').textContent = type;
+    document.getElementById('doc-desc').textContent = desc;
+    const doc = document.getElementById('legal-doc');
+    doc.classList.add('show');
+    doc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showToast('⚖️ Cyber complaint draft generated — ready to file!', 'success');
+  }
+
+  // ——— INIT ———
+  window.onload = () => {
+    buildHeatmap();
+    buildThreatChart();
+    buildStalkerChart();
+    setTimeout(buildGraph, 100);
+    setTimeout(() => showToast('🛡️ SHEild AI is actively monitoring your digital presence', 'success'), 1000);
+  };
+</script>
+</body>
+</html>
